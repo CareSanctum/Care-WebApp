@@ -13,13 +13,31 @@ const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+
   const handleSignOut = () => {
+    // Clear session and local storage
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("username");
+    sessionStorage.removeItem("access_token");
+    sessionStorage.removeItem("username");
+  
+    // Clear all cookies
+  document.cookie.split(";").forEach((cookie) => {
+    document.cookie = cookie
+      .replace(/^ +/, "")
+      .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+  });
+  
+    // Show toast message
     toast({
       title: "Signed out successfully",
       duration: 2000,
     });
+  
+    // Redirect to sign-in page
     navigate('/signin');
   };
+  
 
   const profileData = {
     personalInfo: {

@@ -1,16 +1,66 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Logo } from '@/components/Logo';
+import { toast } from "@/components/ui/use-toast";
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const [identifier, setIdentifier] = useState(""); // Supports email or phone number
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      navigate('/home'); // Redirect if already logged in
+    }
+  
+    // Prevent back button navigation
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = function () {
+      window.history.pushState(null, "", window.location.href);
+    };
+  
+    return () => {
+      window.onpopstate = null; // Cleanup when component unmounts
+    };
+  }, [navigate]);
+  
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/home');
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          identifier,
+          password,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+
+        // Save access_token in localStorage for session persistence
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("user_name", data.user_name);
+
+        toast({ title: "Login Successful", description: "Redirecting...", variant: "success" });
+
+        navigate("/home"); // Redirect to home
+      } else {
+        const errorData = await response.json();
+        toast({ title: "Login Failed", description: errorData.message || "Invalid credentials", variant: "destructive" });
+      }
+    } catch (error) {
+      toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
+    }
   };
 
   return (
@@ -24,8 +74,10 @@ const SignIn = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Input
-                type="email"
-                placeholder="Email"
+                type="text"
+                placeholder="Email or Phone Number"
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
                 required
               />
             </div>
@@ -33,6 +85,8 @@ const SignIn = () => {
               <Input
                 type="password"
                 placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>

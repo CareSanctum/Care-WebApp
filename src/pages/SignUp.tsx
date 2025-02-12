@@ -14,10 +14,14 @@ const SignUp = () => {
   const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [dataSharing, setDataSharing] = useState(false);
   const [emergencyNotifications, setEmergencyNotifications] = useState(false);
+  const [email, setEmail] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+  
     if (!acceptedTerms || !dataSharing || !emergencyNotifications) {
       toast({
         title: "Consent Required",
@@ -26,9 +30,52 @@ const SignUp = () => {
       });
       return;
     }
-    
-    navigate('/onboarding');
+  
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email,
+          phone_number: phoneNumber,
+          password,
+          confirm_password: confirmPassword,
+          role: "USERS"
+        })
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Store token and username in localStorage/sessionStorage
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("user_name", data.user_name);
+  
+        toast({
+          title: "Registration Successful",
+          description: "You have successfully registered.",
+          variant: "success",
+        });
+  
+        navigate('/onboarding');
+      } else {
+        toast({
+          title: "Registration Failed",
+          description: data.message || "An error occurred",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-secondary/5">
@@ -41,8 +88,10 @@ const SignUp = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Input
-                type="text"
-                placeholder="Full Name"
+                type="tel"
+                placeholder="Mobile Number"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
                 required
               />
             </div>
@@ -50,6 +99,8 @@ const SignUp = () => {
               <Input
                 type="email"
                 placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
             </div>
@@ -57,6 +108,8 @@ const SignUp = () => {
               <Input
                 type="password"
                 placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 required
               />
             </div>
@@ -64,6 +117,8 @@ const SignUp = () => {
               <Input
                 type="password"
                 placeholder="Confirm Password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
             </div>
