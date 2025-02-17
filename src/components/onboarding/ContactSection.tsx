@@ -9,24 +9,24 @@ export const ContactSection = ({ register }: { register: any }) => {
       <h3 className="text-lg font-semibold text-primary">Contact Information</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number <span className="text-red-500">*</span></Label>
-          <Input id="phone" type="tel" {...register("phone")} required />
+          <Label htmlFor="phone">Phone Number</Label>
+          <Input id="phone" type="tel" {...register("phone")}/>
         </div>
         <div className="space-y-2">
           <Label htmlFor="altPhone">Alternate Phone Number</Label>
           <Input id="altPhone" type="tel" {...register("altPhone")} />
         </div>
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="email">Email Address <span className="text-red-500">*</span></Label>
-          <Input id="email" type="email" {...register("email")} required />
+          <Label htmlFor="email">Email Address</Label>
+          <Input id="email" type="email" {...register("email")}/>
         </div>
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="address">Current Address <span className="text-red-500">*</span></Label>
-          <Textarea id="address" {...register("address")} required />
+          <Label htmlFor="address">Current Address</Label>
+          <Textarea id="address" {...register("address")}/>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="pincode">PIN Code <span className="text-red-500">*</span></Label>
-          <Input id="pincode" {...register("pincode")} required />
+          <Label htmlFor="pincode">PIN Code</Label>
+          <Input id="pincode" {...register("pincode")}/>
         </div>
       </div>
     </div>

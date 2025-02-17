@@ -5,20 +5,20 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Logo } from '@/components/Logo';
 import { toast } from "@/components/ui/use-toast";
-import { setCredentials } from '@/store/slices/authSlice';
+import { setadminCredentials } from '@/store/slices/adminauthSlice';
 import { useAppDispatch } from '../store/hooks';
 import { useAppSelector } from '../store/hooks';
 
-const SignIn = () => {
+const AdminLogin = () => {
   const navigate = useNavigate();
   const [identifier, setIdentifier] = useState(""); // Supports email or phone number
   const [password, setPassword] = useState("");
   const dispatch = useAppDispatch();
-  const {accessToken} = useAppSelector((state) => state.auth); 
+  const {adminaccessToken} = useAppSelector((state) => state.adminauth); 
 
   useEffect(() => {
-    if (accessToken) {
-      navigate('/home'); // Redirect if already logged in
+    if (adminaccessToken) {
+      navigate('/Admin'); // Redirect if already logged in
     }
   
     // Prevent back button navigation
@@ -51,16 +51,16 @@ const SignIn = () => {
       if (response.ok) {
         const data = await response.json();
 
-        const accessToken = data.access;
-        const username = data.user_name;
+        const adminaccessToken = data.access;
+        const adminusername = data.user_name;
         // Save access_token in localStorage for session persistence
-        localStorage.setItem("access_token", data.access_token);
-        localStorage.setItem("user_name", data.user_name);
-        dispatch(setCredentials({ accessToken, username }));
+        // localStorage.setItem("access_token", data.access_token);
+        // localStorage.setItem("user_name", data.user_name);
+        dispatch(setadminCredentials({ adminaccessToken, adminusername }));
 
         toast({ title: "Login Successful", description: "Redirecting...", variant: "success" });
 
-        navigate("/home"); // Redirect to home
+        navigate("/Admin"); // Redirect to home
       } else {
         const errorData = await response.json();
         toast({ title: "Login Failed", description: errorData.message || "Invalid credentials", variant: "destructive" });
@@ -75,7 +75,7 @@ const SignIn = () => {
       <Card className="w-[400px]">
         <CardHeader className="space-y-1 flex flex-col items-center">
           <Logo />
-          <CardTitle className="text-2xl mt-4">Sign in to your account</CardTitle>
+          <CardTitle className="text-2xl mt-4">Sign in to your Admin account</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -101,20 +101,10 @@ const SignIn = () => {
               Sign In
             </Button>
           </form>
-          <div className="mt-4 text-center">
-            <a href="/signup" className="text-sm text-primary hover:underline">
-              Don't have an account? Sign up
-            </a>
-          </div>
-          <div className="mt-4 text-center">
-            <a href="/AdminLogin" className="text-sm text-primary hover:underline">
-              Login as an Admin
-            </a>
-          </div>
         </CardContent>
       </Card>
     </div>
   );
 };
 
-export default SignIn;
+export default AdminLogin;

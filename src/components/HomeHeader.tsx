@@ -5,10 +5,27 @@ import { Button } from "@/components/ui/button";
 import { Logo } from './Logo';
 import { useToast } from "@/components/ui/use-toast";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { useAppSelector } from '@/store/hooks';
+import { viewRequest } from '@/requests/viewRequest';
+import { useState, useEffect } from 'react';
 
 export const HomeHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+    const {username, accessToken} = useAppSelector((state) => state.auth);
+    const [profile_url, setprofile_url] = useState("");
+  
+    const fetchprofilePicture = async () => {
+      try {
+        const data = await viewRequest(username);  // Call the function
+        setprofile_url(data?.patient?.profile_picture_url || "");
+      } catch (error: any) {
+        console.log(error);
+      }
+    };
+      useEffect(() => {
+        fetchprofilePicture();  // Run the function on mount
+      }, [username]);
 
   const handleEmergency = () => {
     toast({
@@ -37,7 +54,7 @@ export const HomeHeader = () => {
           >
             <Avatar className="h-10 w-10 border-2 border-primary">
               <AvatarImage 
-                src="/lovable-uploads/06ca9dad-031b-4abb-89e3-b5790fbd261b.png" 
+                src={profile_url}
                 alt="Profile Picture"
                 className="object-cover"
               />

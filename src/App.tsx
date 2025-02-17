@@ -9,7 +9,12 @@ import Home from "./pages/Home";
 import Profile from "./pages/Profile";
 import Payments from "./pages/Payments";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 import Onboarding from "./pages/Onboarding";
+import { Provider } from "react-redux";
+import { store } from "./store/store";
+import { useAppSelector } from "./store/hooks";
+import AdminLogin from "./pages/AdminLogin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,31 +29,49 @@ const queryClient = new QueryClient({
 const App = () => {
   // Check if user is on the root path
   const isRootPath = window.location.pathname === '/';
-  
   return (
+    <Provider store={store}>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <Routes>
-            <Route 
-              path="/" 
-              element={
-                isRootPath ? <Navigate to="/signin" replace /> : <SignIn />
-              } 
-            />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/onboarding" element={<Onboarding />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/payments" element={<Payments />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppRoutes />
         </TooltipProvider>
       </BrowserRouter>
     </QueryClientProvider>
+    </Provider>
+  );
+};
+
+const AppRoutes = () => {
+  const { accessToken } = useAppSelector((state) => state.auth); // Now Redux is available
+
+  const PrivateRoute = ({ element }: { element: JSX.Element }) => {
+    return accessToken ? element : <Navigate to="/signin" replace />;
+  };
+
+  return (
+    <Routes>
+      {/* Public Routes */}
+      <Route 
+        path="/" 
+        element={window.location.pathname === '/' ? <Navigate to="/signin" replace /> : <SignIn />} 
+      />
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/admin" element={<Admin />} />
+      <Route path="/adminlogin" element={<AdminLogin />} />
+
+      {/* Protected Routes */}
+      <Route path="/onboarding" element={<PrivateRoute element={<Onboarding />} />} />
+      <Route path="/home" element={<PrivateRoute element={<Home />} />} />
+      <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
+      <Route path="/payments" element={<PrivateRoute element={<Payments />} />} />
+
+      {/* 404 Page */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 };
 

@@ -11,18 +11,88 @@ import { ConciergeService } from "@/components/ConciergeService";
 import { BuddyScheduler } from "@/components/BuddyScheduler";
 import { CommunityEvents } from "@/components/CommunityEvents";
 import { useNavigate } from 'react-router-dom';
+import { User, Phone } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useAppSelector } from '@/store/hooks';
+import { gethealthdataRequest } from '@/requests/gethealthdataRequest';
+
+//utility function to convert date
+const formatCheckedAt = (isoString: string): string => {
+  const date = new Date(isoString);
+  const now = new Date();
+
+  // Remove time from the date comparison
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+
+  // Format time in 12-hour format
+  const formattedTime = date.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  if (date.toDateString() === today.toDateString()) {
+    return `Today, ${formattedTime}`;
+  } else if (date.toDateString() === yesterday.toDateString()) {
+    return `Yesterday, ${formattedTime}`;
+  } else {
+    return `${date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}, ${formattedTime}`;
+  }
+};
 
 const Home = () => {
   const navigate = useNavigate();
+    const {username} = useAppSelector((state) => state.auth);
+    const [userDetails, setUserDetails] = useState<any>(null);
+      useEffect(() => {
+      const fetchUserDetails = async () => {
+          try {
+            const data = await gethealthdataRequest(username);  // Call the function
+            console.log(data);
+            console.log(username);
+            setUserDetails(data);
+            console.log(userDetails) // Store response in the stat
+          } catch (error: any) {
+            console.log(error);
+          }
+        };
+    
+        fetchUserDetails();  // Run the function on mount
+      }, []);
+
+      const status_message: string = userDetails?.health_status_overview?.status_message || "";
+      const next_checkup_date: string = userDetails?.health_status_overview?.next_checkup_date || "";
+
+      const HeartRate: number = userDetails?.vital_signs?.heart_rate || 0;
+      const BloodPressure: string = userDetails?.vital_signs?.blood_pressure || "";
+      const RespiratoryRate: number = userDetails?.vital_signs?.respiratory_rate || 0;
+      const Temperature: number =  userDetails?.vital_signs?.temperature || 0;
+      const vitals_checked_at: string = userDetails?.vital_signs?.checked_at || "";
+
+      const BloodSugar: number =  userDetails?.health_metrics?.blood_sugar || 0;
+      const Ecg: string =  userDetails?.health_metrics?.ecg || "";
+      const Bmi: number =  userDetails?.health_metrics?.bmi || 0;
+      const SleepLevel: number =  userDetails?.health_metrics?.sleep_level || 0;
+      const StressLevel: string =  userDetails?.health_metrics?.stress_level || "";
+      const BloodOxygen: number =  userDetails?.health_metrics?.blood_oxygen || 0;
+      const health_checked_at: string =  userDetails?.health_metrics?.checked_at || "";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
       <HomeHeader />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-        <HealthStatusCard />
-        <PrimaryVitals />
-        <AdditionalHealthMetrics />
+        <HealthStatusCard status_message={status_message} next_checkup_date={next_checkup_date} />
+        <PrimaryVitals HeartRate={HeartRate} BloodPressure={BloodPressure} RespiratoryRate={RespiratoryRate} Temperature={Temperature} 
+        checked_at={formatCheckedAt(vitals_checked_at)} />
+        <AdditionalHealthMetrics 
+          BloodOxygen={BloodOxygen} 
+          Ecg={Ecg} Bmi={Bmi} 
+          SleepLevel={SleepLevel} 
+          StressLevel={StressLevel} 
+          BloodSugar={BloodSugar} checked_at={formatCheckedAt(health_checked_at)}  />
 
         <div className="grid gap-6 md:grid-cols-2">
           <TicketHistory />
@@ -54,6 +124,16 @@ const Home = () => {
               <CardTitle className="text-primary">Support</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="mb-4">
+              <div className="flex items-center space-x-2">
+                <User className="h-4 w-4 text-primary" />
+                <p className="text-gray-700">John Doe</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Phone className="h-4 w-4 text-primary" />
+                <p className="text-gray-700">+1 234 567 890</p>
+              </div>
+              </div>
               <Button className="w-full bg-primary hover:bg-primary/90">Contact Care Manager</Button>
             </CardContent>
           </Card>

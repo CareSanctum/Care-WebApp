@@ -8,10 +8,17 @@ import { ContactCard } from '@/components/profile/ContactCard';
 import { EmergencyContactCard } from '@/components/profile/EmergencyContactCard';
 import { MedicalInfoCard } from '@/components/profile/MedicalInfoCard';
 import { LifestyleCard } from '@/components/profile/LifestyleCard';
+import { useAppSelector } from '@/store/hooks';
+import { useEffect } from 'react';
+import { viewRequest } from '@/requests/viewRequest';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux'
+import { logout } from '@/store/slices/authSlice';
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const dispatch = useDispatch();
 
 
   const handleSignOut = () => {
@@ -20,6 +27,7 @@ const Profile = () => {
     localStorage.removeItem("username");
     sessionStorage.removeItem("access_token");
     sessionStorage.removeItem("username");
+    dispatch(logout());
   
     // Clear all cookies
   document.cookie.split(";").forEach((cookie) => {
@@ -27,7 +35,7 @@ const Profile = () => {
       .replace(/^ +/, "")
       .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
   });
-  
+  navigate('/signin');
     // Show toast message
     toast({
       title: "Signed out successfully",
@@ -35,55 +43,72 @@ const Profile = () => {
     });
   
     // Redirect to sign-in page
-    navigate('/signin');
   };
   
+  const [userDetails, setUserDetails] = useState<any>(null);
+  const {username} = useAppSelector((state) => state.auth);
+  useEffect(() => {
+  const fetchUserDetails = async () => {
+      try {
+        const data = await viewRequest(username);  // Call the function
+        console.log(data);
+        console.log(username);
+        setUserDetails(data);
+        console.log(userDetails) // Store response in the stat
+      } catch (error: any) {
+        console.log(error);
+      }
+    };
+
+    fetchUserDetails();  // Run the function on mount
+  }, []);
 
   const profileData = {
     personalInfo: {
-      fullName: "Pawan Agarwal",
-      dob: "1958-05-15",
-      gender: "Male",
-      bloodGroup: "O+",
-      height: "175",
-      weight: "68",
-      wakeUpTime: "6:00 AM",
+      fullName: userDetails?.patient?.full_name || "",
+      dob:  userDetails?.patient?.dob || "",
+      gender: userDetails?.patient?. gender || "",
+      bloodGroup: userDetails?.patient?.blood_group || "",
+      height: userDetails?.patient?.height || "",
+      weight: userDetails?.patient?.weight || "",
+      wakeUpTime: userDetails?.patient?.usual_wake_up_time || "",
+      image_url: userDetails?.patient?.profile_picture_url || "",
       currentLocation: {
-        status: "home" as const,
+        status: userDetails?.patient?.current_location_status || "",
         expectedReturn: undefined
       }
     },
     contact: {
-      phone: "+91 98765 43210",
-      altPhone: "+91 98765 43211",
-      email: "pawan.agarwal@truemail.com",
-      address: "42/B, Pali Hill Road, Bandra West",
-      city: "Mumbai",
-      state: "Maharashtra",
-      pincode: "400050"
+      phone: userDetails?.patient?.phone || "",
+      altPhone: userDetails?.patient?.alternate_phone || "",
+      email: userDetails?.patient?.emailAddress || "",
+      address: userDetails?.patient?.address || "",
+      pincode: userDetails?.patient?.PINcode || "",
+      idProofUrl: userDetails?.patient?.id_proof_url || "",
     },
     emergencyContact: {
-      name: "Roshan Agarwal",
-      phone: "+91 98765 43212",
-      relationship: "Son",
-      neighborName: "Rajesh Kumar",
-      neighborPhone: "+91 98765 43213"
+      name: userDetails?.emergency_contacts?.next_of_kin_name || "",
+      phone: userDetails?.emergency_contacts?.next_of_kin_contact_number || "",
+      relationship: userDetails?.emergency_contacts?.relationship_with_senior || "",
+      neighborName: userDetails?.emergency_contacts?.neighbor_name || "",
+      neighborPhone: userDetails?.emergency_contacts?.neighbor_contact_number || "",
     },
     medicalInfo: {
-      healthConditions: "Hypertension, Diabetes Type 2",
-      allergies: "Peanuts, Penicillin",
-      surgeries: "Knee replacement (2019)",
-      doctorName: "Dr. Mehta",
-      doctorContact: "+91 98765 43214",
-      preferredHospital: "Lilavati Hospital"
+      healthConditions: userDetails?.medical_history?.existing_health_conditions || "",
+      allergies: userDetails?.medical_history?.known_allergies || "",
+      surgeries: userDetails?.medical_history?.past_surgeries || "",
+      doctorName: userDetails?.preferred_medical_services?.preferred_doctor_name || "",
+      doctorContact: userDetails?.preferred_medical_services?.doctor_contact_number|| "",
+      preferredHospital: userDetails?.preferred_medical_services?.preferred_hospital_or_clinic || "",
+      PrescsUrl: userDetails?.medical_history?.current_prescriptions_url ||"",
     },
     lifestyle: {
-      activityLevel: "Moderately Active",
-      dietPreference: "Vegetarian",
+      activityLevel:  userDetails?.lifestyle_details?.activity_level || "",
+      dietPreference: userDetails?.lifestyle_details?.diet_preferencesa || "",
       specialNeeds: {
-        mobilityAssistance: true,
-        visionImpairment: false,
-        hearingImpairment: false
+        mobilityAssistance: userDetails?.lifestyle_details?.requires_mobility_assistance || "",
+        visionImpairment: userDetails?.lifestyle_details?.has_vision_impairment || "",
+        hearingImpairment: userDetails?.lifestyle_details?.has_hearing_impairment || "",
       }
     }
   };
@@ -124,6 +149,7 @@ const Profile = () => {
           variant="destructive" 
           className="w-full flex items-center justify-center gap-2"
           onClick={handleSignOut}
+
         >
           <LogOut className="h-5 w-5" />
           Sign Out

@@ -9,16 +9,26 @@ const generateTrendData = (baseValue: number, variance: number) => {
   }));
 };
 
-export const AdditionalHealthMetrics = () => {
+interface HealthMetricsProps {
+  BloodSugar: number;
+  Ecg: string;
+  Bmi: number;
+  SleepLevel:number;
+  StressLevel:string;
+  BloodOxygen:number;
+  checked_at: string;
+}
+
+export const AdditionalHealthMetrics = ({BloodSugar, Ecg,Bmi, SleepLevel, StressLevel, BloodOxygen, checked_at}: HealthMetricsProps) => {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4 text-primary">Additional Health Metrics</h2>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <HealthMetricCard
           title="Blood Sugar"
-          value="95 mg/dL"
+          value={`${BloodSugar} mg/dL`}
           icon={<Droplets className="h-4 w-4" />}
-          lastChecked="Today, 1:30 PM"
+          lastChecked={checked_at}
           trendData={generateTrendData(95, 8)}
           description="Blood sugar (glucose) level indicates the amount of sugar in your bloodstream. It's important for monitoring diabetes and overall health."
           unit="Milligrams per Deciliter (mg/dL)"
@@ -26,18 +36,18 @@ export const AdditionalHealthMetrics = () => {
         />
         <HealthMetricCard
           title="ECG"
-          value="Normal"
+          value={`${Ecg}`}
           icon={<Activity className="h-4 w-4" />}
-          lastChecked="Yesterday, 3:45 PM"
+          lastChecked={checked_at}
           trendData={generateTrendData(72, 5)}
           description="Electrocardiogram (ECG) measures the electrical activity of your heart. It helps detect irregular heartbeats and other heart conditions."
           normalRange="Normal sinus rhythm"
         />
         <HealthMetricCard
           title="BMI"
-          value="22.4"
+          value={`${Bmi}`}
           icon={<Scale className="h-4 w-4" />}
-          lastChecked="Last week"
+          lastChecked={checked_at}
           trendData={generateTrendData(22.4, 0.2)}
           description="Body Mass Index (BMI) is a measure of body fat based on height and weight. It helps assess if someone is at a healthy weight."
           unit="kg/m²"
@@ -45,9 +55,9 @@ export const AdditionalHealthMetrics = () => {
         />
         <HealthMetricCard
           title="Sleep Level"
-          value="7.5 hrs"
+          value={`${SleepLevel} hrs`}
           icon={<Moon className="h-4 w-4" />}
-          lastChecked="Today, 8:00 AM"
+          lastChecked={checked_at}
           trendData={generateTrendData(7.5, 1)}
           description="Sleep duration and quality are important for overall health. Good sleep helps with recovery, memory, and immune function."
           unit="Hours"
@@ -55,18 +65,18 @@ export const AdditionalHealthMetrics = () => {
         />
         <HealthMetricCard
           title="Stress Level"
-          value="Low"
+          value={`${StressLevel}`}
           icon={<Brain className="h-4 w-4" />}
-          lastChecked="Today, 2:30 PM"
+          lastChecked={checked_at}
           trendData={generateTrendData(2, 1)}
           description="Stress level indicates your current mental and emotional state. It's measured through various physiological indicators."
           normalRange="Low to Moderate"
         />
         <HealthMetricCard
           title="Blood Oxygen"
-          value="98%"
+          value={`${BloodOxygen}%`}
           icon={<Gauge className="h-4 w-4" />}
-          lastChecked="Today, 2:30 PM"
+          lastChecked={checked_at}
           trendData={generateTrendData(98, 1)}
           description="Blood oxygen saturation (SpO2) measures how much oxygen your red blood cells are carrying. It's crucial for vital organ function."
           unit="Percentage (%)"

@@ -9,16 +9,23 @@ const generateTrendData = (baseValue: number, variance: number) => {
   }));
 };
 
-export const PrimaryVitals = () => {
+interface PrimaryVitalsProps {
+  HeartRate: number;
+  BloodPressure: string;
+  RespiratoryRate: number;
+  Temperature:number;
+  checked_at:string;
+}
+export const PrimaryVitals = ({HeartRate, BloodPressure, RespiratoryRate, Temperature, checked_at}: PrimaryVitalsProps) => {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4 text-primary">Primary Vitals</h2>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <HealthMetricCard
           title="Heart Rate"
-          value="72 BPM"
+          value={`${HeartRate} BPM`}
           icon={<Heart className="h-4 w-4" />}
-          lastChecked="Today, 2:30 PM"
+          lastChecked={checked_at}
           trendData={generateTrendData(72, 5)}
           description="Heart rate is the number of times your heart beats per minute. It varies based on activity level, emotions, and overall health."
           unit="Beats Per Minute (BPM)"
@@ -26,9 +33,9 @@ export const PrimaryVitals = () => {
         />
         <HealthMetricCard
           title="Blood Pressure"
-          value="120/80 mmHg"
+          value={`${BloodPressure} mmHg`}
           icon={<Activity className="h-4 w-4" />}
-          lastChecked="Today, 2:30 PM"
+          lastChecked={checked_at}
           trendData={generateTrendData(120, 10)}
           description="Blood pressure is the force of blood pushing against artery walls. It's shown as two numbers: systolic (top) and diastolic (bottom) pressure."
           unit="Millimeters of Mercury (mmHg)"
@@ -36,9 +43,9 @@ export const PrimaryVitals = () => {
         />
         <HealthMetricCard
           title="Respiratory Rate"
-          value="16 BPM"
+          value={`${RespiratoryRate} BPM`}
           icon={<Wind className="h-4 w-4" />}
-          lastChecked="Today, 2:30 PM"
+          lastChecked={checked_at}
           trendData={generateTrendData(16, 2)}
           description="Respiratory rate is the number of breaths taken per minute. It's measured by counting chest rises and falls."
           unit="Breaths Per Minute (BPM)"
@@ -46,9 +53,9 @@ export const PrimaryVitals = () => {
         />
         <HealthMetricCard
           title="Temperature"
-          value="36.6°C"
+          value={`${Temperature}°C`}
           icon={<Thermometer className="h-4 w-4" />}
-          lastChecked="Today, 2:30 PM"
+          lastChecked={checked_at}
           trendData={generateTrendData(36.6, 0.3)}
           description="Body temperature is a measure of the body's ability to generate and get rid of heat. Normal temperature varies throughout the day."
           unit="Celsius (°C)"

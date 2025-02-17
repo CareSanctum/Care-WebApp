@@ -29,7 +29,7 @@ const Onboarding = () => {
           <Logo />
           <Button 
             variant="outline" 
-            onClick={() => navigate(-1)}
+            onClick={() => navigate("/profile")}
           >
             Back
           </Button>

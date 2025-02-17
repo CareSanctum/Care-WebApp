@@ -1,8 +1,10 @@
-import React from 'react';
-import { User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { User, Camera } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-
+import { Avatar, AvatarImage, AvatarFallback, AvatarWithCamera } from "@/components/ui/avatar";
+import { useAppSelector } from '@/store/hooks';
+import { sendfileRequest } from '@/requests/sendfileRequest';
+import { viewRequest } from '@/requests/viewRequest';
 interface PersonalInfoProps {
   personalInfo: {
     fullName: string;
@@ -12,6 +14,7 @@ interface PersonalInfoProps {
     height: string;
     weight: string;
     wakeUpTime?: string;
+    image_url: string;
     currentLocation: {
       status: "home" | "travelling";
       expectedReturn?: string;
@@ -20,16 +23,52 @@ interface PersonalInfoProps {
 }
 
 export const PersonalInfoCard = ({ personalInfo }: PersonalInfoProps) => {
+  const {username, accessToken} = useAppSelector((state) => state.auth);
+  const [profile_url, setprofile_url] = useState("");
+
+  const fetchprofilePicture = async () => {
+    try {
+      const data = await viewRequest(username);  // Call the function
+      setprofile_url(data?.patient?.profile_picture_url || personalInfo.image_url);
+    } catch (error: any) {
+      console.log(error);
+    }
+  };
+
+  const handleFileUpload = async (file: File) =>{
+    const sanitizedFileName = file.name.replace(/\s+/g, "_"); 
+    const formData = new FormData();
+    formData.append("file", new File([file], sanitizedFileName, { type: file.type })); // Append the file with a field name "file"
+    formData.append("name", "profile_picture");
+    formData.append("user_name", username);
+    try {
+      // ✅ Show a loading state (optional)
+      setprofile_url("");  
+  
+      // ✅ Upload file to the backend first
+      await sendfileRequest(formData, accessToken);
+  
+      // ✅ Only update profile_url after getting a successful response
+      fetchprofilePicture();
+    } catch (error) {
+      console.error("Upload failed:", error);
+      // ❌ Show an error message (optional)
+      alert("Failed to upload profile picture. Please try again.");
+    }
+  }
+  useEffect(() => {
+    fetchprofilePicture();  // Run the function on mount
+  }, [username]);
   return (
     <Card>
       <CardHeader className="text-center">
         <div className="mx-auto mb-4">
-          <Avatar className="h-32 w-32">
-            <AvatarImage src="/lovable-uploads/06ca9dad-031b-4abb-89e3-b5790fbd261b.png" alt={personalInfo.fullName} />
+          <AvatarWithCamera className="h-32 w-32" handleFileUpload={handleFileUpload}>
+            <AvatarImage src={profile_url} alt={personalInfo.fullName} />
             <AvatarFallback>
               <User className="h-16 w-16" />
             </AvatarFallback>
-          </Avatar>
+          </AvatarWithCamera>
         </div>
         <CardTitle className="text-2xl">{personalInfo.fullName}</CardTitle>
       </CardHeader>
@@ -48,12 +87,12 @@ export const PersonalInfoCard = ({ personalInfo }: PersonalInfoProps) => {
             <p className="font-medium">{personalInfo.bloodGroup}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Height</p>
-            <p className="font-medium">{personalInfo.height} cm</p>
+            <p className="text-sm text-gray-500">Height(cm)</p>
+            <p className="font-medium">{personalInfo.height}</p>
           </div>
           <div>
-            <p className="text-sm text-gray-500">Weight</p>
-            <p className="font-medium">{personalInfo.weight} kg</p>
+            <p className="text-sm text-gray-500">Weight(kg)</p>
+            <p className="font-medium">{personalInfo.weight}</p>
           </div>
           <div>
             <p className="text-sm text-gray-500">Wake Up Time</p>
