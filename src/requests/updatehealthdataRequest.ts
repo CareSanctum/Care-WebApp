@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const updatehealthdataRequest = async (data: any, username: string, accessToken: string) => {
     try{
-        const response = await axios.post(`http://192.168.1.104:8080/api/health-data/update/${username}`, {
+        const response = await axios.post(`http://192.168.1.66:8080/api/health-data/update/${username}`, {
             username: username,
             vital_signs:{
                 heart_rate: data.HeartRate,
