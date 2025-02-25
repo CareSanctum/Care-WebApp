@@ -1,8 +1,8 @@
 import axios from "axios";
 
-export const sendfileRequest = async (formData: FormData) => {
+export const uploadmedicationRequest = async (formData: FormData) => {
     try{
-        const response = await axios.post('http://192.168.1.66:8080/api/upload-file/', formData, {
+        const response = await axios.post('http://192.168.1.66:8080/api/medications/upload-document/', formData, {
           headers: {
             'Content-Type': 'multipart/form-data' 
           },

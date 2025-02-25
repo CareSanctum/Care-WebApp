@@ -16,11 +16,12 @@ const Admin = () => {
     const {register, handleSubmit, getValues, control} = useForm();
     const {toast} = useToast();
     const [usernames, setusernames] = useState<string[]>([]);
+    const {adminusername} = useAppSelector((state) => state.adminauth)
     useEffect(() => {
         const fetchUsernames = async () => {
           try {
-            const response = await viewuserlistRequest();
-            setusernames(response.usernames); // Assuming the response format is { usernames: [...] }
+            const response = await viewuserlistRequest(adminusername);
+            setusernames(response.map(user => user.username)); // Assuming the response format is { usernames: [...] }
           } catch (error) {
             console.error("Error fetching usernames:", error);
           }

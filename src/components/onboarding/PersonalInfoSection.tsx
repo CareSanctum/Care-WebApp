@@ -33,7 +33,7 @@ export const PersonalInfoSection = ({ register, watch, control }: { register: an
     formData.append("user_name", username);
 
     //Sending via Axios
-    sendfileRequest(formData, accessToken);
+    sendfileRequest(formData);
   
   };
   return (

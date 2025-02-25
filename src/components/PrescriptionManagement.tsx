@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,21 +6,171 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Pill, Upload, FileText, FlaskConical } from 'lucide-react';
+import { useAppSelector } from '@/store/hooks';
+import { viewRequest } from '@/requests/viewRequest';
+import { sendfileRequest } from '@/requests/sendfileRequest';
+import usePrescriptions from '@/hooks/use-prescriptions';
+import { Prescription } from '@/hooks/use-prescriptions';
+import useLabReports, { LabReport } from '@/hooks/use-labreports';
+import {uploadmedicationRequest} from '@/requests/uploadmedicationRequest';
+import useMedications, {Medication} from '@/hooks/use-medications'
 
 export const PrescriptionManagement = () => {
   const { toast } = useToast();
-  const [uploadType, setUploadType] = React.useState<'prescription' | 'lab'>('prescription');
-  const [doctorName, setDoctorName] = React.useState('');
-  const [visitDate, setVisitDate] = React.useState('');
-  const [testName, setTestName] = React.useState('');
+  // const [uploadType, setUploadType] = useState<'prescription' | 'lab'>('prescription');
+  const [doctorName, setDoctorName] = useState('');
+  const [visitDate, setVisitDate] = useState('');
+  const [Prescfile, setPrescFile] = useState<File | null>(null);
 
-  const handleUpload = () => {
-    toast({
-      title: `${uploadType === 'prescription' ? 'Prescription' : 'Lab Report'} uploaded successfully`,
-      description: "Your document has been added to your records.",
-    });
+  const [testName, setTestName] = useState('');
+  const [testDate, setTestDate] = useState('');
+  const [LRfile, setLRfile] = useState<File | null>(null);
+
+  const [userDetails, setUserDetails] = useState<any>(null);
+  const {username} = useAppSelector((state) => state.auth);
+  const PrescfileInputRef = useRef<HTMLInputElement | null>(null);
+  const LRfileInputRef = useRef<HTMLInputElement | null>(null);
+  const medfileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [medicineName, setmedicineName] = useState('');
+  const [dosage, setdosage] = useState('');
+  const [prescribedBy, setprescribedBy] = useState('');
+  const [expDate, setexpDate] = useState('');
+  const [timing, settiming] = useState('');
+  const [medfile, setmedfile] = useState<File | null>(null);
+    // useEffect(() => {
+    // const fetchUserDetails = async () => {
+    //     try {
+    //       const data = await viewRequest(username);  // Call the function
+    //       setUserDetails(data);
+    //     } catch (error: any) {
+    //       console.log(error);
+    //     }
+    //   };
+  
+    //   fetchUserDetails();  // Run the function on mount
+    // }, []);
+
+  const openPdf = (fileurl:string) => {
+      window.open(fileurl, "_blank"); // Opens PDF in a new tab
+  }
+  //toget the file Name if showable Format
+  const getFileName = (url: string | null) => {
+    if (!url) return "No File"; // Handle case where URL is missing
+    return url.split("/").pop() || "Unknown File"; // Extract file name from URL
   };
 
+  //Handles Change of file
+  const handlePrescFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files && event.target.files.length > 0) {
+        setPrescFile(event.target.files[0]); // Save the file in state
+      }
+  };
+  const handleLRFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setLRfile(event.target.files[0]); // Save the file in state
+    }
+};
+const handlemedFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  if (event.target.files && event.target.files.length > 0) {
+    setmedfile(event.target.files[0]); // Save the file in state
+  }
+};
+
+  const handlePrescUpload = async () => {
+    if (!Prescfile) {
+      alert("Please select a file first.");
+      return;
+    }
+
+    // Create a FormData object
+    const sanitizedFileName = Prescfile.name.replace(/\s+/g, "_"); 
+    const formData = new FormData();
+    formData.append("file", new File([Prescfile], sanitizedFileName, { type: Prescfile.type })); // Append the file with a field name "file"
+    formData.append("name", "Presc_file");
+    formData.append("user_name", username);
+    formData.append("doctor_name", doctorName);
+    formData.append("prescribed_date", visitDate);
+
+    //Sending via Axios
+    sendfileRequest(formData);
+    
+    toast({
+      title: `Prescription uploaded successfully`,
+      description: "Your document has been added to your records.",
+    });
+    if (PrescfileInputRef.current) {
+      PrescfileInputRef.current.value = "";
+    }
+    setDoctorName('');
+    setVisitDate('');
+    setPrescFile(null);
+  };
+  const handleLRUpload = async () => {
+    if (!LRfile) {
+      alert("Please select a file first.");
+      return;
+    }
+
+    // Create a FormData object
+    const sanitizedFileName = LRfile.name.replace(/\s+/g, "_"); 
+    const formData = new FormData();
+    formData.append("file", new File([LRfile], sanitizedFileName, { type: LRfile.type })); // Append the file with a field name "file"
+    formData.append("name", "LR_file");
+    formData.append("user_name", username);
+    formData.append("test_name", testName);
+    formData.append("test_date",testDate)
+
+    //Sending via Axios
+    await sendfileRequest(formData);
+    toast({
+      title: `Lab Report uploaded successfully`,
+      description: "Your document has been added to your records.",
+    });
+    if (LRfileInputRef.current) {
+      LRfileInputRef.current.value = "";
+    }
+    setTestName('');
+    setTestDate('');
+    setLRfile(null);
+  };
+  const handleMedUpload = async () => {
+    if (!medfile) {
+      alert("Please select a file first.");
+      return;
+    }
+
+    // Create a FormData object
+    const sanitizedFileName = medfile.name.replace(/\s+/g, "_"); 
+    const formData = new FormData();
+    formData.append("file", new File([medfile], sanitizedFileName, { type: medfile.type })); // Append the file with a field name "file"
+    formData.append("medicine_name", medicineName);
+    formData.append("username", username);
+    formData.append("dosage", dosage);
+    formData.append("timing", timing);
+    formData.append("prescribed_by",prescribedBy);
+    formData.append("exp_date",expDate)
+
+    //Sending via Axios
+    await uploadmedicationRequest(formData);
+    toast({
+      title: `Lab Report uploaded successfully`,
+      description: "Your document has been added to your records.",
+    });
+    if (LRfileInputRef.current) {
+      LRfileInputRef.current.value = "";
+    }
+    setmedicineName('');
+    setdosage('');
+    settiming('');
+    setprescribedBy('');
+    setexpDate('');
+    setmedfile(null);
+  };
+
+  const prescriptions:Prescription[] = usePrescriptions();
+  const LabReports:LabReport[] = useLabReports();
+  const Medications:Medication[] = useMedications();
   return (
     <Card className="shadow-md">
       <CardHeader>
@@ -38,17 +188,21 @@ export const PrescriptionManagement = () => {
             <div className="grid gap-4">
               <div className="space-y-2">
                 <h3 className="font-medium">Recent Prescriptions</h3>
-                <div className="grid gap-2">
-                  <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
+                <div className="grid gap-2 max-h-60 overflow-y-auto p-2 border rounded-lg">
+                {prescriptions.map((prescription, index) => (
+                  <div key={index} className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
                     <div>
-                      <p className="font-medium">Dr. Rajesh Sharma - Cardiology</p>
-                      <p className="text-sm text-gray-600">Visit Date: 15th March 2024</p>
+                      <p className="font-medium">{`Dr. ${prescription.doctorName || "Unknown Doctor"}`}</p>
+                      <p className="text-sm text-gray-600">
+                        {prescription.prescribedDate ? `Visit Date: ${new Date(prescription.prescribedDate).toLocaleDateString()}` : "Visit Date: Not Available"}
+                      </p>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => openPdf(prescription.url)}>
                       <FileText className="h-4 w-4 mr-2" />
-                      View
+                      {getFileName(prescription.url)}
                     </Button>
                   </div>
+                ))}
                 </div>
               </div>
 
@@ -70,8 +224,17 @@ export const PrescriptionManagement = () => {
                     onChange={(e) => setVisitDate(e.target.value)}
                   />
                 </div>
-                <Button onClick={handleUpload} className="w-full">
-                  <Upload className="h-4 w-4 mr-2" />
+                <div className="space-y-2">
+                  <Label>Upload Prescription File</Label>
+                  <input 
+                    ref={PrescfileInputRef}
+                    className= "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    id="Prescriptions" type="file"  accept=".pdf,.jpg,.png" onChange={handlePrescFileChange}  />
+                    
+                  <p className="text-xs text-muted-foreground">Supported formats: PDF, JPG, PNG</p>
+                </div>
+                <Button  className="w-full" disabled={!Prescfile || !doctorName || !visitDate} onClick={handlePrescUpload}>
+                  <Upload className="h-4 w-4 mr-2"/>
                   Upload Prescription
                 </Button>
               </div>
@@ -82,17 +245,21 @@ export const PrescriptionManagement = () => {
             <div className="grid gap-4">
               <div className="space-y-2">
                 <h3 className="font-medium">Recent Lab Reports</h3>
-                <div className="grid gap-2">
-                  <div className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
+                <div className="grid gap-2 max-h-60 overflow-y-auto p-2 border rounded-lg">
+                {LabReports.map((LR, index) => (
+                  <div key={index} className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
                     <div>
-                      <p className="font-medium">Blood Work Analysis</p>
-                      <p className="text-sm text-gray-600">Date: 10th March 2024</p>
+                      <p className="font-medium">{`Dr. ${LR.testName || "Unknown Doctor"}`}</p>
+                      <p className="text-sm text-gray-600">
+                        {LR.testDate ? `Visit Date: ${new Date(LR.testDate).toLocaleDateString()}` : "Visit Date: Not Available"}
+                      </p>
                     </div>
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => openPdf(LR.url)}>
                       <FileText className="h-4 w-4 mr-2" />
-                      View
+                      {getFileName(LR.url)}
                     </Button>
                   </div>
+                ))}
                 </div>
               </div>
 
@@ -111,10 +278,19 @@ export const PrescriptionManagement = () => {
                   <Input 
                     type="date"
                     value={visitDate}
-                    onChange={(e) => setVisitDate(e.target.value)}
+                    onChange={(e) => setTestDate(e.target.value)}
                   />
                 </div>
-                <Button onClick={handleUpload} className="w-full">
+                <div className="space-y-2">
+                  <Label>Upload Lab Report File</Label>
+                  <input 
+                    ref={LRfileInputRef}
+                    className= "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    id="Lab_Report" type="file"  accept=".pdf,.jpg,.png" onChange={handleLRFileChange} />
+                    
+                  <p className="text-xs text-muted-foreground">Supported formats: PDF, JPG, PNG</p>
+                </div>
+                <Button  className="w-full" disabled={!LRfile || !testName || !testDate} onClick={handleLRUpload}>
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Lab Report
                 </Button>
@@ -128,32 +304,89 @@ export const PrescriptionManagement = () => {
                 <h3 className="font-medium">Current Medicines</h3>
                 <div className="grid gap-2">
                   <div className="p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Pill className="h-4 w-4 text-primary" />
-                      <p className="font-medium">Metformin 500mg</p>
+                  <div className="grid gap-2 max-h-60 overflow-y-auto p-2 border rounded-lg">
+                  {Medications.map((Meds, index) => (
+                    <div key={index} className="p-3 bg-gray-50">
+                      <div className="flex items-center gap-2">
+                        <Pill className="h-4 w-4 text-primary" />
+                        <p className="font-medium">{Meds.medicineName}</p>
+                      </div>
+                      <div className="mt-2 text-sm text-gray-600">
+                        <p>{Meds.dosage}</p>
+                        <p>{Meds.timing}</p>
+                        <p>{Meds.prescribedBy}</p>
+                        <p>{Meds.expiry}</p>
+                        <p className="mt-1 text-amber-600">{Meds.stock}</p>
+                        <Button variant="outline" size="sm" onClick={() => openPdf(Meds.url)}>
+                          <FileText className="h-4 w-4 mr-2" />
+                         {getFileName(Meds.url)}
+                         </Button>
+                      </div>
                     </div>
-                    <div className="mt-2 text-sm text-gray-600">
-                      <p>Dosage: 1 tablet</p>
-                      <p>Timing: Twice daily after meals</p>
-                      <p>Prescribed by: Dr. Priya Patel</p>
-                      <p>Expiry Date: December 2024</p>
-                      <p className="mt-1 text-amber-600">Stock remaining: 15 tablets</p>
-                    </div>
+                  ))}
                   </div>
-                  <div className="p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Pill className="h-4 w-4 text-primary" />
-                      <p className="font-medium">Lisinopril 10mg</p>
-                    </div>
-                    <div className="mt-2 text-sm text-gray-600">
-                      <p>Dosage: 1 tablet</p>
-                      <p>Timing: Once daily in the morning</p>
-                      <p>Prescribed by: Dr. Suresh Kumar</p>
-                      <p>Expiry Date: November 2024</p>
-                      <p className="mt-1 text-red-600">Stock remaining: 5 tablets (Low)</p>
-                    </div>
+                  </div>  
+                </div>
+                <div className="space-y-4 border-t pt-4">
+                <h3 className="font-medium">Upload New Medications</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Medicine Name</Label>
+                    <Input 
+                      value={medicineName}
+                      onChange={(e) => setmedicineName(e.target.value)}
+                      placeholder="Enter Medicine Name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Dosage</Label>
+                    <Input 
+                      value={dosage}
+                      onChange={(e) => setdosage(e.target.value)}
+                      placeholder="Enter Dosage"
+                    />
                   </div>
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Prescribed By</Label>
+                    <Input 
+                      value={prescribedBy}
+                      onChange={(e) => setprescribedBy(e.target.value)}
+                      placeholder="Enter Doctor's Name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>timing</Label>
+                    <Input 
+                      value={timing}
+                      onChange={(e) => settiming(e.target.value)}
+                      placeholder="Enter Timing"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label>Expiry Date</Label>
+                    <Input 
+                      type="date"
+                      value={expDate}
+                      onChange={(e) => setexpDate(e.target.value)}
+                    />
+                </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Upload Medicine File</Label>
+                  <input 
+                    ref={medfileInputRef}
+                    className= "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    id="medicineFile" type="file"  accept=".pdf,.jpg,.png" onChange={handlemedFileChange} />
+                    
+                  <p className="text-xs text-muted-foreground">Supported formats: PDF, JPG, PNG</p>
+                </div>
+                <Button  className="w-full" disabled={!medfile || !medicineName || !dosage || !timing || !prescribedBy || !expDate} onClick={handleMedUpload}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload Medicine
+                </Button>
+              </div>
               </div>
             </div>
           </TabsContent>

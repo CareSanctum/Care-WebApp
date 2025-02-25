@@ -24,11 +24,15 @@ const authSlice = createSlice({
       state.accessToken = action.payload.accessToken;
       state.username = action.payload.username;
       state.isAuthenticated = true;
+      localStorage.setItem('accessToken', action.payload.accessToken);
+      localStorage.setItem('username', action.payload.username);
     },
     logout: (state) => {
       state.accessToken = "";
       state.username = "";
       state.isAuthenticated = false;
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('username');
     },
   },
 });

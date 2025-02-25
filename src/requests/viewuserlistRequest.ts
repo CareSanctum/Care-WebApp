@@ -1,11 +1,11 @@
 import axios from "axios";
 
-export const viewuserlistRequest = async () => {
+export const viewuserlistRequest = async (username:string) => {
     try {
         // Log the request URL
         console.log('Making request to:', `http://192.168.1.104:8080/api/patient-usernames/`);
         
-        const response = await axios.get("http://192.168.1.66:8080/api/patient-usernames/", {
+        const response = await axios.get(`http://192.168.1.66:8080/api/get-assigned-users/${username}`, {
             // Add timeout to avoid hanging
             timeout: 5000,
             // Log request headers for debugging

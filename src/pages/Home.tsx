@@ -11,10 +11,13 @@ import { ConciergeService } from "@/components/ConciergeService";
 import { BuddyScheduler } from "@/components/BuddyScheduler";
 import { CommunityEvents } from "@/components/CommunityEvents";
 import { useNavigate } from 'react-router-dom';
-import { User, Phone } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAppSelector } from '@/store/hooks';
 import { gethealthdataRequest } from '@/requests/gethealthdataRequest';
+import { getCMdetailsRequest } from '@/requests/getCMdetailsRequest';
+import { contactCMRequest } from '@/requests/contactCMReques';
+import { toast } from '@/hooks/use-toast';
 
 //utility function to convert date
 const formatCheckedAt = (isoString: string): string => {
@@ -46,13 +49,16 @@ const Home = () => {
   const navigate = useNavigate();
     const {username} = useAppSelector((state) => state.auth);
     const [userDetails, setUserDetails] = useState<any>(null);
+    const [CMDetails, setCMdetails] = useState<any>(null);
       useEffect(() => {
       const fetchUserDetails = async () => {
           try {
             const data = await gethealthdataRequest(username);  // Call the function
+            const CMdata = await getCMdetailsRequest(username);
             console.log(data);
-            console.log(username);
             setUserDetails(data);
+            setCMdetails(CMdata);
+
             console.log(userDetails) // Store response in the stat
           } catch (error: any) {
             console.log(error);
@@ -61,6 +67,14 @@ const Home = () => {
     
         fetchUserDetails();  // Run the function on mount
       }, []);
+
+      const handleContact = async () => {
+        const message = await contactCMRequest(username);
+        toast({
+          title: "Mail sent to Care Manager",
+          description: `${message}`,
+        });
+      }
 
       const status_message: string = userDetails?.health_status_overview?.status_message || "";
       const next_checkup_date: string = userDetails?.health_status_overview?.next_checkup_date || "";
@@ -126,15 +140,15 @@ const Home = () => {
             <CardContent>
               <div className="mb-4">
               <div className="flex items-center space-x-2">
-                <User className="h-4 w-4 text-primary" />
-                <p className="text-gray-700">John Doe</p>
+                <Mail className="h-4 w-4 text-primary" />
+                <p className="text-gray-700">{CMDetails?.care_manager?.email}</p>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-primary" />
-                <p className="text-gray-700">+1 234 567 890</p>
+                <p className="text-gray-700">{CMDetails?.care_manager?.phone_number}</p>
               </div>
               </div>
-              <Button className="w-full bg-primary hover:bg-primary/90">Contact Care Manager</Button>
+              <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleContact}>Contact Care Manager</Button>
             </CardContent>
           </Card>
         </div>

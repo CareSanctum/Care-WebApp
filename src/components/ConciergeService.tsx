@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Phone, ShoppingBag, Pill, Car, Loader2 } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
-import { useTickets } from '@/hooks/use-tickets';
+// import { useTickets } from '@/hooks/use-tickets';
+import { useAppSelector } from '@/store/hooks';
+import { newConciergeService } from '@/requests/newconciergeService';
 
 type ServiceState = {
   [key: string]: boolean;
@@ -14,9 +16,10 @@ type LoadingState = {
 
 export const ConciergeService = () => {
   const { toast } = useToast();
-  const { addTicket } = useTickets();
+  // const { addTicket } = useTickets();
   const [selectedServices, setSelectedServices] = useState<ServiceState>({});
   const [loadingServices, setLoadingServices] = useState<LoadingState>({});
+  const {username} = useAppSelector((state) => state.auth);
 
 
   const handleServiceRequest = (service: string) => {
@@ -32,7 +35,7 @@ export const ConciergeService = () => {
       [service]: true
     }));
     // Simulate API delay
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    const response = await newConciergeService(username, service);
 
     // Create a new ticket
     const newTicket = {
@@ -43,10 +46,10 @@ export const ConciergeService = () => {
       category: 'Concierge'
     };
 
-    addTicket(newTicket);
+    // addTicket(newTicket);
     toast({
       title: "Ticket Created",
-      description: `Your request has been received by your CareManager. A Support ticket will be opened soon.`
+      description: `Your request has been received by your CareManager. Your support ticket is ${response.data.ticket_number}`
     });
 
     // Reset the loading and service states
