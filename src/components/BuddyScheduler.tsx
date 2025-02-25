@@ -16,8 +16,8 @@ import useVisitData from '@/hooks/use-visits';
 
 const changeDateFormat = (date: string): string => {
   const eventDate = new Date(date);
-  const datePart = eventDate.toISOString().split('T')[0];
-  const timePart = eventDate.toISOString().split('T')[1].split(':').slice(0, 2).join(':');
+  const datePart = eventDate.toLocaleDateString();
+  const timePart = eventDate.toLocaleTimeString();
   return datePart + " " +  timePart;
 }
 
@@ -30,6 +30,7 @@ export const BuddyScheduler = () => {
   const [showBuddyScheduler, setShowBuddyScheduler] = React.useState(false);
   const {username} = useAppSelector((state) => state.auth);
   const visitData = useVisitData(username);
+  console.log(visitData);
 
   const handleSchedule = async (visit_type: 'buddy' | 'care_manager' | 'doctor') => {
     if (!date && !timeSlot) {
@@ -55,6 +56,9 @@ export const BuddyScheduler = () => {
     setShowDoctorScheduler(false);
     setShowBuddyScheduler(false);
   };
+  const handleJoinMeet = (fileurl:string) => {
+    window.open(fileurl, "_blank"); // Opens PDF in a new tab
+}
 
   const renderScheduler = (type: 'care_manager' | 'doctor' | 'buddy') => {
     return (
@@ -128,7 +132,7 @@ export const BuddyScheduler = () => {
             {!showCareManagerScheduler ? (
               <div className="p-4 bg-gray-50 rounded-lg">
                 <h3 className="font-medium mb-2">Next Scheduled Visit</h3>
-                {visitData && visitData["care_manager"] ? (
+                {visitData  && visitData["care_manager"] ? (
                   <p className="text-sm text-gray-600">{changeDateFormat(visitData["care_manager"].scheduled_datetime)}</p>
                 ):(
                   <p className="text-sm text-gray-600">No scheduled visit</p>
@@ -154,7 +158,7 @@ export const BuddyScheduler = () => {
                   <Button variant="outline" onClick={() => setShowDoctorScheduler(true)}>
                     Reschedule
                   </Button>
-                  <Button className="flex items-center gap-2">
+                  <Button className="flex items-center gap-2" onClick={() => handleJoinMeet(visitData["doctor"].gmeet_link)}>
                     <VideoIcon className="h-4 w-4" />
                     Join Session
                   </Button>

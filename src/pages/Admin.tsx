@@ -49,6 +49,9 @@ const Admin = () => {
             console.log(error);
         }
     }
+    const handleredirecttoAdminDashboard = () => {
+        window.open("http://192.168.1.66:8080/admin");
+    }
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 py-8">
             <div className="max-w-4xl mx-auto px-4">
@@ -67,6 +70,9 @@ const Admin = () => {
                             <div className="flex justify-between pt-6">
                                 <Button type="submit">
                                     Save Data
+                                </Button>
+                                <Button onClick={() => handleredirecttoAdminDashboard()}>
+                                    Admin Dashboard
                                 </Button>
                             </div>
                         </form>
