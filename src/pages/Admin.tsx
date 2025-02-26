@@ -50,7 +50,7 @@ const Admin = () => {
         }
     }
     const handleredirecttoAdminDashboard = () => {
-        window.open(`${process.env.BACKEND_URL}/admin`);
+        window.open(`${import.meta.env.VITE_BACKEND_URL}/admin`);
     }
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 py-8">

@@ -4,7 +4,7 @@ export const viewRequest = async (username: string) => {
         // Log the request URL
         console.log('Making request to:', `http://192.168.1.104:8080/api/user-details/${username}/`);
         
-        const response = await axios.get(`${process.env.BACKEND_URL}/api/user-details/${username}/`, {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user-details/${username}/`, {
             // Add timeout to avoid hanging
             timeout: 5000,
             // Log request headers for debugging

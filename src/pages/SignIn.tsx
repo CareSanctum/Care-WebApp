@@ -35,9 +35,8 @@ const SignIn = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}/api/login/`, {
+      const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -69,7 +68,6 @@ const SignIn = () => {
       toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
     }
   };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-[400px]">

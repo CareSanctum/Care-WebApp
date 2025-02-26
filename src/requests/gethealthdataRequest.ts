@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const gethealthdataRequest = async (username: string) =>{
     try {
-        const response = await axios.get(`${process.env.BACKEND_URL}/api/health-data/${username}`,{
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/health-data/${username}`,{
             // Add timeout to avoid hanging
             timeout: 5000,
             // Log request headers for debugging

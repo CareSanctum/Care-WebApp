@@ -3,7 +3,7 @@ import { Event } from "@/store/slices/eventSlice";
 
 export const geteventsRequest = async():Promise<Event[]> =>{
     try{
-        const response = await axios.get(`${process.env.BACKEND_URL}/api/latest-events/`)
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/latest-events/`)
         const transformedEvents: Event[] = response.data.map((event: any) => ({
             id: event.id,
             title: event.name,
