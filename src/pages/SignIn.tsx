@@ -37,7 +37,7 @@ const SignIn = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://192.168.1.66:8080/api/login/", {
+      const response = await fetch(`${process.env.BACKEND_URL}/api/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

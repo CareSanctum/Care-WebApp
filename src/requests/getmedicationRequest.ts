@@ -2,7 +2,7 @@ import axios from "axios";
 import {Medication} from "@/hooks/use-medications";
 export const getmedicationRequest = async (username: string) =>{
     try {
-        const response = await axios.get(`http://192.168.1.66:8080/api/medications/get-medications/`, {
+        const response = await axios.get(`${process.env.BACKEND_URL}/api/medications/get-medications/`, {
             params: {"username": username}
         });
         const transformedLRs:Medication[] = response.data.map((item: any) => ({

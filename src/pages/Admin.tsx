@@ -50,7 +50,7 @@ const Admin = () => {
         }
     }
     const handleredirecttoAdminDashboard = () => {
-        window.open("http://192.168.1.66:8080/admin");
+        window.open(`${process.env.BACKEND_URL}/admin`);
     }
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 py-8">

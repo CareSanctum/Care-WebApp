@@ -32,7 +32,7 @@ const SignUp = () => {
     }
   
     try {
-      const response = await fetch('https://care-backend.onrender.com:10000/api/register/', {
+      const response = await fetch(`${process.env.BACKEND_URL}/api/register/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

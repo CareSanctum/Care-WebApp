@@ -30,7 +30,7 @@ export const MedicalSection = ({ register }: { register: any }) => {
   
       //Sending via Axios
       try{
-        const response = await axios.post('http://192.168.1.66:8080/api/upload-file/', formData, {
+        const response = await axios.post(`${process.env.BACKEND_URL}/api/upload-file/`, formData, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'multipart/form-data' 

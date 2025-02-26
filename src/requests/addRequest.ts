@@ -49,7 +49,7 @@ export const addReqeuest = async (userform: any, username: string, accessToken: 
       }).filter(([_, value]) => value !== null && value !== "") // Remove empty/null fields
     );
     try{
-        const response = await axios.post('http://192.168.1.66:8080/api/add_patient_data/', {
+        const response = await axios.post(`${process.env.BACKEND_URL}/api/add_patient_data/`, {
             username: username,
             patient: patientData,
             emergency_contacts:emergencyContacts,
