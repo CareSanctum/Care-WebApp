@@ -68,6 +68,7 @@ const SignIn = () => {
       toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
     }
   };
+  console.log(`${import.meta.env.VITE_BACKEND_URL}/api/login/`);
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-[400px]">
