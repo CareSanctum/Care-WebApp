@@ -17,6 +17,8 @@ import { store } from './store/store';
 import { useAppSelector, useAppDispatch } from './store/hooks';
 import AdminLogin from './pages/AdminLogin';
 import { setCredentials } from './store/slices/authSlice';
+import Terms  from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -83,6 +85,9 @@ const AppRoutes = () => {
       <Route path="/home" element={<PrivateRoute element={<Home />} />} />
       <Route path="/profile" element={<PrivateRoute element={<Profile />} />} />
       <Route path="/payments" element={<PrivateRoute element={<Payments />} />} />
+
+      <Route path="/terms" element={<Terms />} />
+      <Route path="/privacy" element={<Privacy />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>

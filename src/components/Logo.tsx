@@ -7,7 +7,7 @@ export const Logo = () => {
       <img 
         src={profileLogo}  
         alt="Care Sanctum Logo" 
-        className="h-16 w-16 transform scale-[2.0]"
+        className="h-14 w-16 transform scale-[2.1]"
       />
     </div>
   );

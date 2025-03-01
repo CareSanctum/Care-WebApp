@@ -4,32 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Logo } from '@/components/Logo';
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import { useAppDispatch } from '@/store/hooks';
+import CountryCodeSelector from '@/components/ui/countryselector';
 
 const SignUp = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [dataSharing, setDataSharing] = useState(false);
-  const [emergencyNotifications, setEmergencyNotifications] = useState(false);
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [countryCode, setCountryCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    if (!acceptedTerms || !dataSharing || !emergencyNotifications) {
-      toast({
-        title: "Consent Required",
-        description: "Please accept all the required consents to continue",
-        variant: "destructive",
-      });
-      return;
-    }
   
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/register/`, {
@@ -47,11 +37,12 @@ const SignUp = () => {
       });
   
       const data = await response.json();
-  
+      
       if (response.ok) {
         // Store token and username in localStorage/sessionStorage
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("user_name", data.user_name);
+        // dispatch(setCredentials({ accessToken, username }));
   
         toast({
           title: "Registration Successful",
@@ -87,11 +78,13 @@ const SignUp = () => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
+              {/* <CountryCodeSelector value={countryCode} onChange={setCountryCode} /> */}
               <Input
                 type="tel"
                 placeholder="Mobile Number"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
+                validationRules={{pattern: "[0-9]*" }}
                 required
               />
             </div>
@@ -109,6 +102,8 @@ const SignUp = () => {
                 type="password"
                 placeholder="Password"
                 value={password}
+                
+                validationRules={{ required: true, minLength:6, pattern: "^(?=.*[0-9]).+$"  }}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
@@ -118,37 +113,10 @@ const SignUp = () => {
                 type="password"
                 placeholder="Confirm Password"
                 value={confirmPassword}
+                confirmPassword={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
-            </div>
-            <div className="space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="dataSharing" 
-                  checked={dataSharing}
-                  onCheckedChange={(checked) => setDataSharing(checked as boolean)}
-                />
-                <Label htmlFor="dataSharing">I consent to sharing my data with healthcare providers</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="emergencyNotifications" 
-                  checked={emergencyNotifications}
-                  onCheckedChange={(checked) => setEmergencyNotifications(checked as boolean)}
-                />
-                <Label htmlFor="emergencyNotifications">I consent to receiving emergency notifications</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="terms" 
-                  checked={acceptedTerms}
-                  onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
-                />
-                <Label htmlFor="terms">
-                  I agree to the Terms and Conditions
-                </Label>
-              </div>
             </div>
             <Button type="submit" className="w-full">
               Sign Up
@@ -158,6 +126,12 @@ const SignUp = () => {
             <a href="/signin" className="text-sm text-primary hover:underline">
               Already have an account? Sign in
             </a>
+          </div>
+          <div className="mt-4 text-center text-sm font-medium text-gray-500">
+            By signing up, you agree to our 
+            <a href="/Terms" className="text-[#3D007D] hover:underline"> Terms of Service </a>
+              and 
+             <a href="/Privacy" className="text-[#3D007D] hover:underline"> Privacy Policy</a>
           </div>
         </CardContent>
       </Card>
