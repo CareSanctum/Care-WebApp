@@ -9,7 +9,7 @@ const Privacy = () => {
     useEffect(() => {
         const loadTerms = async () => {
           try {
-            const response = await fetch("src/assets/docs/Privacy_Policy_CareSanctum.docx");
+            const response = await fetch("/docs/Privacy_Policy_CareSanctum.docx");
             const arrayBuffer = await response.arrayBuffer();
             const result = await mammoth.convertToHtml({ arrayBuffer });
             const formattedHtml = result.value

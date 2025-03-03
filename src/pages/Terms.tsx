@@ -9,7 +9,7 @@ const Terms = () => {
     useEffect(() => {
         const loadTerms = async () => {
           try {
-            const response = await fetch("src/assets/docs/CareSanctum_Terms_of_use.docx");
+            const response = await fetch("/docs/CareSanctum_Terms_of_use.docx");
             const arrayBuffer = await response.arrayBuffer();
             const result = await mammoth.convertToHtml({ arrayBuffer });
             const formattedHtml = result.value
