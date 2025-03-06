@@ -49,7 +49,7 @@ export const addReqeuest = async (userform: any, username: string, accessToken: 
       }).filter(([_, value]) => value !== null && value !== "") // Remove empty/null fields
     );
     try{
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/add_patient_data/`, {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/add-patient-data/`, {
             username: username,
             patient: patientData,
             emergency_contacts:emergencyContacts,

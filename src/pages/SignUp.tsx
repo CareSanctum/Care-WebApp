@@ -7,16 +7,27 @@ import { Logo } from '@/components/Logo';
 import { useToast } from "@/components/ui/use-toast";
 import { useAppDispatch } from '@/store/hooks';
 import CountryCodeSelector from '@/components/ui/countryselector';
+import { Eye, EyeOff } from 'lucide-react';
 
 const SignUp = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showconfirmPassword, setshowconfirmPassword] = useState(false);
   const dispatch = useAppDispatch();
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
+  // Toggle confirm password visibility
+  const toggleConfirmPasswordVisibility = () => {
+    setshowconfirmPassword(!showconfirmPassword);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,13 +118,19 @@ const SignUp = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
+              <span
+                onClick={togglePasswordVisibility}
+                className="absolute top-1/2 right-2 transform -translate-y-1/2 cursor-pointer"
+              >
+                {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
+              </span>
             </div>
             <div className="space-y-2">
               <Input
                 type="password"
                 placeholder="Confirm Password"
                 value={confirmPassword}
-                confirmPassword={confirmPassword}
+                confirmPassword={password}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
