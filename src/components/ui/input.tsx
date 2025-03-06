@@ -1,6 +1,6 @@
-import * as React from "react"
-
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface InputProps extends React.ComponentProps<"input"> {
   validationRules?: React.ComponentProps<"input">; //for applying validation rules 
@@ -8,8 +8,9 @@ interface InputProps extends React.ComponentProps<"input"> {
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, validationRules, confirmPassword, onChange,  ...props }, ref) => {
+  ({ className, type, validationRules, confirmPassword, onChange, ...props }, ref) => {
     const [errorMessage, setErrorMessage] = React.useState("");
+    const [showPassword, setShowPassword] = React.useState(false);
 
     const handleValidation = (e: React.ChangeEvent<HTMLInputElement>) => {
       const input = e.target;
@@ -30,29 +31,39 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       } else if (type === "password" && confirmPassword !== undefined && input.value !== confirmPassword) {
         message = "Passwords do not match.";
       }
-
       setErrorMessage(message);
       if (onChange) onChange(e);
     };
+
     return (
-      <div>
-        <input
-          type={type}
-          className={cn(
-            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
-            className
+      <div className="relative">
+        <div className="relative flex items-center">
+          <input
+            type={type === "password" && showPassword ? "text" : type}
+            className={cn(
+              "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+              className
+            )}
+            ref={ref}
+            {...validationRules}
+            {...props}
+            onChange={handleValidation}
+          />
+          {type === "password" && (
+            <span
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute right-3 cursor-pointer"
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </span>
           )}
-          ref={ref}
-          {...validationRules}
-          {...props}
-          onChange={handleValidation}
-          
-        />
+        </div>
         {errorMessage && <p className="text-red-500 font-medium text-sm mt-1">{errorMessage}</p>}
       </div>
-    )
+    );
   }
-)
-Input.displayName = "Input"
+);
 
-export { Input }
+Input.displayName = "Input";
+
+export { Input };

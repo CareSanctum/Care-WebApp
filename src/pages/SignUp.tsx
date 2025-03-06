@@ -146,9 +146,9 @@ const SignUp = () => {
           </div>
           <div className="mt-4 text-center text-sm font-medium text-gray-500">
             By signing up, you agree to our 
-            <a href="/Terms" className="text-[#3D007D] hover:underline"> Terms of Service </a>
+            <a href="/Terms" className="text-[#3D007D] hover:underline" target="_blank" rel="noopener noreferrer"> Terms of Service </a>
               and 
-             <a href="/Privacy" className="text-[#3D007D] hover:underline"> Privacy Policy</a>
+            <a href="/Privacy" className="text-[#3D007D] hover:underline" target="_blank" rel="noopener noreferrer"> Privacy Policy</a>
           </div>
         </CardContent>
       </Card>

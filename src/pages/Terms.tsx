@@ -30,7 +30,7 @@ const Terms = () => {
     return(
         <div>
             <GeneralHeader />
-            <div className="flex justify-center p-4">
+            <div className="flex justify-center p-4 mt-16">
                 <div className="max-w-4xl w-full" dangerouslySetInnerHTML={{ __html: termsContent }} />
             </div>
         </div>
