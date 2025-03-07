@@ -193,11 +193,11 @@ const Health_Metrics = ({ register, control}: { register: any, control: any}) =>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="Ecg">Ecg</Label>
-                    <Controller name="Ecg" control={control} defaultValue="Normal"
+                    <Controller name="Ecg" control={control}
                     render={({ field }) => (              
                         <Select {...field} onValueChange={field.onChange}>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select Ecg" />
+                                <SelectValue placeholder="Select Ecg Value" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="Normal">Normal</SelectItem>
@@ -217,7 +217,7 @@ const Health_Metrics = ({ register, control}: { register: any, control: any}) =>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="StressLevel">Stress Level</Label>
-                    <Controller name="StressLevel" control={control} defaultValue="Low"
+                    <Controller name="StressLevel" control={control} 
                     render={({ field }) => (              
                         <Select {...field} onValueChange={field.onChange}>
                             <SelectTrigger>

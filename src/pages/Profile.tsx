@@ -24,24 +24,24 @@ const Profile = () => {
   const dispatch = useDispatch();
 
   // Check if we need to scroll to the referrals section
-  useEffect(() => {
-    if (location.hash === '#referrals') {
-      const referralsElement = document.getElementById('referrals');
-      if (referralsElement) {
-        // Add a small delay to ensure rendering is complete
-        setTimeout(() => {
-          referralsElement.scrollIntoView({ behavior: 'smooth' });
+  // useEffect(() => {
+  //   if (location.hash === '#referrals') {
+  //     const referralsElement = document.getElementById('referrals');
+  //     if (referralsElement) {
+  //       // Add a small delay to ensure rendering is complete
+  //       setTimeout(() => {
+  //         referralsElement.scrollIntoView({ behavior: 'smooth' });
           
-          // Show toast for referral achievement
-          toast({
-            title: "🏆 Your Referral Status",
-            description: "Pawan Agarwal referred 25 members and earned ₹3,500",
-            duration: 4000,
-          });
-        }, 300);
-      }
-    }
-  }, [location.hash, toast]);
+  //         // Show toast for referral achievement
+  //         toast({
+  //           title: "🏆 Your Referral Status",
+  //           description: "Pawan Agarwal referred 25 members and earned ₹3,500",
+  //           duration: 4000,
+  //         });
+  //       }, 300);
+  //     }
+  //   }
+  // }, [location.hash, toast]);
 
 
   const handleSignOut = () => {
@@ -149,7 +149,7 @@ const Profile = () => {
 
             {/* Apollo Organization Badge with Tooltip */}
             {/* Apollo Organization Badge with Tooltip */}
-<TooltipProvider>
+{/* <TooltipProvider>
   <Tooltip>
     <TooltipTrigger asChild>
       <div className="bg-primary/5 px-4 py-2 rounded-full flex items-center gap-3 cursor-help border border-primary/10">
@@ -169,7 +169,7 @@ const Profile = () => {
       </div>
     </TooltipContent>
   </Tooltip>
-</TooltipProvider>
+</TooltipProvider> */}
 
 
           </div>
@@ -190,9 +190,9 @@ const Profile = () => {
         <MedicalInfoCard medicalInfo={profileData.medicalInfo} />
         <LifestyleCard lifestyle={profileData.lifestyle} />
 
-        <div className="my-8">
+        {/* <div className="my-8">
           <ReferralTracking />
-        </div>
+        </div> */}
         
         <Button 
           variant="destructive" 

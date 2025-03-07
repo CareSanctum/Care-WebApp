@@ -30,14 +30,14 @@ const SignUp = () => {
     setshowconfirmPassword(!showconfirmPassword);
   };
 
-  useEffect(() => {
-    // Get referral code from URL if present
-    const params = new URLSearchParams(location.search);
-    const urlReferralCode = params.get('referal_code'); // Note: using 'referal_code' to match the URL format
-    if (urlReferralCode) {
-      setReferralCode(urlReferralCode);
-    }
-  }, [location]);
+  // useEffect(() => {
+  //   // Get referral code from URL if present
+  //   const params = new URLSearchParams(location.search);
+  //   const urlReferralCode = params.get('referal_code'); // Note: using 'referal_code' to match the URL format
+  //   if (urlReferralCode) {
+  //     setReferralCode(urlReferralCode);
+  //   }
+  // }, [location]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -146,14 +146,14 @@ const SignUp = () => {
                 required
               />
             </div>
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Input
                 type="text"
                 placeholder="Referral Code (Optional)"
                 value={referralCode}
                 onChange={(e) => setReferralCode(e.target.value)}
               />
-            </div>
+            </div> */}
             <Button type="submit" className="w-full">
               Sign Up
             </Button>

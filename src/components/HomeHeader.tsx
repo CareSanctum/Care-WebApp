@@ -8,38 +8,38 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAppSelector } from '@/store/hooks';
 import { viewRequest } from '@/requests/viewRequest';
 import { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+// import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+// import { Input } from "@/components/ui/input";
+// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 
 export const HomeHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [copied, setCopied] = useState(false);
+  // const [copied, setCopied] = useState(false);
 
-  // Generate a unique referral code
-  const referralCode = React.useMemo(() => {
-    const userPart = "caresanctum";
-    const randomPart = Math.random().toString(36).substring(2, 8);
-    return `${userPart}_${randomPart}`;
-  }, []);
+  // // Generate a unique referral code
+  // const referralCode = React.useMemo(() => {
+  //   const userPart = "caresanctum";
+  //   const randomPart = Math.random().toString(36).substring(2, 8);
+  //   return `${userPart}_${randomPart}`;
+  // }, []);
 
-  const referralLink = `https://preview--gentlecarehub.lovable.app/signup?referal_code=${referralCode}`;
+  // const referralLink = `https://preview--gentlecarehub.lovable.app/signup?referal_code=${referralCode}`;
 
-  // Show acquisition toast messages on component mount
-  useEffect(() => {
-    // Show referral achievement toast after a short delay
-    const timer = setTimeout(() => {
-      toast({
-        title: "🎉 Referral Achievement!",
-        description: "Pawan Agarwal referred 25 members and earned ₹3,500",
-        duration: 5000,
-      });
-    }, 3000);
+  // // Show acquisition toast messages on component mount
+  // useEffect(() => {
+  //   // Show referral achievement toast after a short delay
+  //   const timer = setTimeout(() => {
+  //     toast({
+  //       title: "🎉 Referral Achievement!",
+  //       description: "Pawan Agarwal referred 25 members and earned ₹3,500",
+  //       duration: 5000,
+  //     });
+  //   }, 3000);
 
-    return () => clearTimeout(timer);
-  }, [toast]);
+  //   return () => clearTimeout(timer);
+  // }, [toast]);
 
     const {username, accessToken} = useAppSelector((state) => state.auth);
     const [profile_url, setprofile_url] = useState("");
@@ -64,29 +64,29 @@ export const HomeHeader = () => {
     });
   };
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(referralLink).then(() => {
-      setCopied(true);
-      toast({
-        title: "Referral link copied!",
-        description: "Share it with your friends and family",
-        duration: 2000,
-      });
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
+  // const handleCopyLink = () => {
+  //   navigator.clipboard.writeText(referralLink).then(() => {
+  //     setCopied(true);
+  //     toast({
+  //       title: "Referral link copied!",
+  //       description: "Share it with your friends and family",
+  //       duration: 2000,
+  //     });
+  //     setTimeout(() => setCopied(false), 2000);
+  //   });
+  // };
 
-  const navigateToReferrals = () => {
-    // Navigate to profile page and scroll to referrals section
-    navigate('/profile#referrals');
-  };
+  // const navigateToReferrals = () => {
+  //   // Navigate to profile page and scroll to referrals section
+  //   navigate('/profile#referrals');
+  // };
 
   return (
     <header className="bg-white shadow-lg border-b border-primary/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-3">
+        {/* <div className="flex items-center gap-3"> */}
           <Logo />
-        </div>
+        {/* </div> */}
         
         <div className="flex items-center gap-4">
           <Button 
@@ -98,7 +98,7 @@ export const HomeHeader = () => {
             SOS
           </Button>
           
-          <Dialog>
+          {/* <Dialog>
             <DialogTrigger asChild>
               <Button 
                 variant="outline" 
@@ -158,7 +158,7 @@ export const HomeHeader = () => {
                 </div>
               </div>
             </DialogContent>
-          </Dialog>
+          </Dialog> */}
           
           <div 
             className="cursor-pointer" 
@@ -166,7 +166,7 @@ export const HomeHeader = () => {
           >
             <Avatar className="h-10 w-10 border-2 border-primary">
               <AvatarImage 
-                src="/lovable-uploads/06ca9dad-031b-4abb-89e3-b5790fbd261b.png" 
+                src={profile_url} 
                 alt="Profile Picture"
                 className="object-cover"
               />
