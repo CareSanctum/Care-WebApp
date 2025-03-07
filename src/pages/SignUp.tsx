@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect  } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showconfirmPassword, setshowconfirmPassword] = useState(false);
+  const [referralCode, setReferralCode] = useState('');
   const dispatch = useAppDispatch();
 
   const togglePasswordVisibility = () => {
@@ -28,6 +29,16 @@ const SignUp = () => {
   const toggleConfirmPasswordVisibility = () => {
     setshowconfirmPassword(!showconfirmPassword);
   };
+
+  useEffect(() => {
+    // Get referral code from URL if present
+    const params = new URLSearchParams(location.search);
+    const urlReferralCode = params.get('referal_code'); // Note: using 'referal_code' to match the URL format
+    if (urlReferralCode) {
+      setReferralCode(urlReferralCode);
+    }
+  }, [location]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,6 +144,14 @@ const SignUp = () => {
                 confirmPassword={password}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Input
+                type="text"
+                placeholder="Referral Code (Optional)"
+                value={referralCode}
+                onChange={(e) => setReferralCode(e.target.value)}
               />
             </div>
             <Button type="submit" className="w-full">
