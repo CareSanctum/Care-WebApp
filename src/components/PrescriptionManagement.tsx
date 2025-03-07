@@ -37,7 +37,7 @@ export const PrescriptionManagement = () => {
   const [prescribedBy, setprescribedBy] = useState('');
   const [expDate, setexpDate] = useState('');
   const [timing, settiming] = useState('');
-  const [medfile, setmedfile] = useState<File | null>(null);
+  const [stock, setstock] = useState('');
     // useEffect(() => {
     // const fetchUserDetails = async () => {
     //     try {
@@ -70,11 +70,6 @@ export const PrescriptionManagement = () => {
     if (event.target.files && event.target.files.length > 0) {
       setLRfile(event.target.files[0]); // Save the file in state
     }
-};
-const handlemedFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  if (event.target.files && event.target.files.length > 0) {
-    setmedfile(event.target.files[0]); // Save the file in state
-  }
 };
 
   const handlePrescUpload = async () => {
@@ -135,21 +130,15 @@ const handlemedFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setLRfile(null);
   };
   const handleMedUpload = async () => {
-    if (!medfile) {
-      alert("Please select a file first.");
-      return;
-    }
-
-    // Create a FormData object
-    const sanitizedFileName = medfile.name.replace(/\s+/g, "_"); 
     const formData = new FormData();
-    formData.append("file", new File([medfile], sanitizedFileName, { type: medfile.type })); // Append the file with a field name "file"
+
     formData.append("medicine_name", medicineName);
     formData.append("username", username);
     formData.append("dosage", dosage);
     formData.append("timing", timing);
     formData.append("prescribed_by",prescribedBy);
-    formData.append("exp_date",expDate)
+    formData.append("exp_date",expDate);
+    formData.append("stock", stock);
 
     //Sending via Axios
     await uploadmedicationRequest(formData);
@@ -165,7 +154,7 @@ const handlemedFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     settiming('');
     setprescribedBy('');
     setexpDate('');
-    setmedfile(null);
+    setstock('');
   };
 
   const prescriptions:Prescription[] = usePrescriptions();
@@ -304,26 +293,22 @@ const handlemedFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
                 <h3 className="font-medium">Current Medicines</h3>
                 <div className="grid gap-2">
                   <div className="p-3 bg-gray-50 rounded-lg">
-                  <div className="grid gap-2 max-h-60 overflow-y-auto p-2 border rounded-lg">
-                  {Medications.map((Meds, index) => (
-                    <div key={index} className="p-3 bg-gray-50">
-                      <div className="flex items-center gap-2">
-                        <Pill className="h-4 w-4 text-primary" />
-                        <p className="font-medium">{Meds.medicineName}</p>
-                      </div>
-                      <div className="mt-2 text-sm text-gray-600">
-                        <p>{Meds.dosage}</p>
-                        <p>{Meds.timing}</p>
-                        <p>{Meds.prescribedBy}</p>
-                        <p>{Meds.expiry}</p>
-                        <p className="mt-1 text-amber-600">{Meds.stock}</p>
-                        <Button variant="outline" size="sm" onClick={() => openPdf(Meds.url)}>
-                          <FileText className="h-4 w-4 mr-2" />
-                         {getFileName(Meds.url)}
-                         </Button>
-                      </div>
-                    </div>
-                  ))}
+                    <div className="grid gap-2 max-h-60 overflow-y-auto p-2 border rounded-lg">
+                      {Medications.map((Meds, index) => (
+                        <div key={index} className="p-3 bg-gray-50">
+                        <div className="flex items-center gap-2">
+                          <Pill className="h-4 w-4 text-primary" />
+                          <p className="font-medium">{Meds.medicineName}</p>
+                        </div>
+                        <div className="mt-2 text-sm text-gray-600">
+                          <p>{Meds.dosage}</p>
+                          <p>{Meds.timing}</p>
+                          <p>{Meds.prescribedBy}</p>
+                          <p>{Meds.expiry}</p>
+                          <p className="mt-1 text-amber-600">{Meds.stock} Remaining</p>
+                        </div>
+                        </div>
+                     ))}
                   </div>
                   </div>  
                 </div>
@@ -363,26 +348,28 @@ const handlemedFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
                       onChange={(e) => settiming(e.target.value)}
                       placeholder="Enter Timing"
                     />
+                  </div>
                 </div>
-                <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <Label>Expiry Date</Label>
                     <Input 
                       type="date"
                       value={expDate}
                       onChange={(e) => setexpDate(e.target.value)}
+                      placeholder="Enter Expiry Date"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Stock Left</Label>
+                    <Input 
+                      value={stock}
+                      onChange={(e) => setstock(e.target.value)}
+                      placeholder="Enter Remaining Stock"
+                    />
+                  </div>
                 </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Upload Medicine File</Label>
-                  <input 
-                    ref={medfileInputRef}
-                    className= "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                    id="medicineFile" type="file"  accept=".pdf,.jpg,.png" onChange={handlemedFileChange} />
-                    
-                  <p className="text-xs text-muted-foreground">Supported formats: PDF, JPG, PNG</p>
-                </div>
-                <Button  className="w-full" disabled={!medfile || !medicineName || !dosage || !timing || !prescribedBy || !expDate} onClick={handleMedUpload}>
+                <Button  className="w-full" disabled={!medicineName || !dosage || !timing || !prescribedBy || !expDate || !stock} onClick={handleMedUpload}>
                   <Upload className="h-4 w-4 mr-2" />
                   Upload Medicine
                 </Button>

@@ -3,7 +3,6 @@ import { getmedicationRequest } from "@/requests/getmedicationRequest";
 import { useAppSelector } from "@/store/hooks";
 
 export interface Medication {
-  url: string;
   medicineName: string;
   dosage: string ;
   timing: string ;

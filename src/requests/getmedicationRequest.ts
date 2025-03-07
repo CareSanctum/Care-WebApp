@@ -6,7 +6,6 @@ export const getmedicationRequest = async (username: string) =>{
             params: {"username": username}
         });
         const transformedLRs:Medication[] = response.data.map((item: any) => ({
-            url: item?.documents[0] ? item.documents[0].document_url : "",
             medicineName: item?.medicine_name? item.medicine_name : "",
             dosage: item?.dosage? item.dosage : "",
             timing: item?.timing? item.timing : "",
