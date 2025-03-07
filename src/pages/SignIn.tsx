@@ -53,8 +53,8 @@ const SignIn = () => {
         const accessToken = data.access;
         const username = data.user_name;
         // Save access_token in localStorage for session persistence
-        localStorage.setItem("access_token", data.access_token);
-        localStorage.setItem("user_name", data.user_name);
+        // localStorage.setItem("access_token", data.access_token);
+        // localStorage.setItem("user_name", data.user_name);
         dispatch(setCredentials({ accessToken, username }));
 
         toast({ title: "Login Successful", description: "Redirecting...", variant: "success" });

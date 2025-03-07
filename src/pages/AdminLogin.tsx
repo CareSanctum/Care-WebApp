@@ -16,21 +16,21 @@ const AdminLogin = () => {
   const dispatch = useAppDispatch();
   const {adminaccessToken} = useAppSelector((state) => state.adminauth); 
 
-  useEffect(() => {
-    if (adminaccessToken) {
-      navigate('/Admin'); // Redirect if already logged in
-    }
+  // useEffect(() => {
+  //   if (adminaccessToken) {
+  //     navigate('/Admin'); // Redirect if already logged in
+  //   }
   
-    // Prevent back button navigation
-    window.history.pushState(null, "", window.location.href);
-    window.onpopstate = function () {
-      window.history.pushState(null, "", window.location.href);
-    };
+  //   // Prevent back button navigation
+  //   window.history.pushState(null, "", window.location.href);
+  //   window.onpopstate = function () {
+  //     window.history.pushState(null, "", window.location.href);
+  //   };
   
-    return () => {
-      window.onpopstate = null; // Cleanup when component unmounts
-    };
-  }, [navigate]);
+  //   return () => {
+  //     window.onpopstate = null; // Cleanup when component unmounts
+  //   };
+  // }, [navigate]);
   
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,8 +54,6 @@ const AdminLogin = () => {
         const adminaccessToken = data.access;
         const adminusername = data.user_name;
         // Save access_token in localStorage for session persistence
-        // localStorage.setItem("access_token", data.access_token);
-        // localStorage.setItem("user_name", data.user_name);
         dispatch(setadminCredentials({ adminaccessToken, adminusername }));
 
         toast({ title: "Login Successful", description: "Redirecting...", variant: "success" });

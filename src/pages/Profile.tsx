@@ -23,10 +23,6 @@ const Profile = () => {
 
   const handleSignOut = () => {
     // Clear session and local storage
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("username");
-    sessionStorage.removeItem("access_token");
-    sessionStorage.removeItem("username");
     dispatch(logout());
   
     // Clear all cookies

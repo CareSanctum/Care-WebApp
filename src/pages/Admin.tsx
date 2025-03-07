@@ -8,15 +8,19 @@ import { updatehealthdataRequest } from "@/requests/updatehealthdataRequest";
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Controller } from 'react-hook-form';
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { viewuserlistRequest } from "@/requests/viewuserlistRequest";
+import { useNavigate } from "react-router-dom";
+import { logout } from "@/store/slices/adminauthSlice";
 
 
 const Admin = () => {
     const {register, handleSubmit, getValues, control} = useForm();
     const {toast} = useToast();
     const [usernames, setusernames] = useState<string[]>([]);
-    const {adminusername} = useAppSelector((state) => state.adminauth)
+    const adminusername = localStorage.getItem("admin_username");
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
     useEffect(() => {
         const fetchUsernames = async () => {
           try {
@@ -49,8 +53,24 @@ const Admin = () => {
             console.log(error);
         }
     }
-    const handleredirecttoAdminDashboard = () => {
-        window.open(`${import.meta.env.VITE_BACKEND_URL}/admin`);
+    const handleSignOut = () => {
+            // Clear session and local storage
+            dispatch(logout());
+          
+            // Clear all cookies
+          document.cookie.split(";").forEach((cookie) => {
+            document.cookie = cookie
+              .replace(/^ +/, "")
+              .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+          });
+          navigate('/signin');
+            // Show toast message
+            toast({
+              title: "Signed out successfully",
+              duration: 2000,
+            });
+          
+            // Redirect to sign-in page
     }
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 py-8">
@@ -71,8 +91,8 @@ const Admin = () => {
                                 <Button type="submit">
                                     Save Data
                                 </Button>
-                                <Button onClick={() => handleredirecttoAdminDashboard()}>
-                                    Admin Dashboard
+                                <Button onClick={() => handleSignOut()}>
+                                    Sign Out
                                 </Button>
                             </div>
                         </form>

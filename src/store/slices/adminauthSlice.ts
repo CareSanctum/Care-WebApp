@@ -24,11 +24,15 @@ const adminauthSlice = createSlice({
       state.adminaccessToken = action.payload.adminaccessToken;
       state.adminusername = action.payload.adminusername;
       state.adminisAuthenticated = true;
+      localStorage.setItem("admin_accessToken", state.adminaccessToken);
+      localStorage.setItem("admin_username", state.adminusername);
     },
     logout: (state) => {
       state.adminaccessToken = "";
       state.adminusername = "";
       state.adminisAuthenticated = false;
+      localStorage.removeItem('admin_accessToken');
+      localStorage.removeItem('admin_username');
     },
   },
 });
