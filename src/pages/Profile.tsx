@@ -13,12 +13,35 @@ import { useEffect } from 'react';
 import { viewRequest } from '@/requests/viewRequest';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux'
+import { Bell, Link, Copy, Users, Trophy, Info } from 'lucide-react';
 import { logout } from '@/store/slices/authSlice';
+import { ReferralTracking } from '@/components/ReferralTracking';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const dispatch = useDispatch();
+
+  // Check if we need to scroll to the referrals section
+  useEffect(() => {
+    if (location.hash === '#referrals') {
+      const referralsElement = document.getElementById('referrals');
+      if (referralsElement) {
+        // Add a small delay to ensure rendering is complete
+        setTimeout(() => {
+          referralsElement.scrollIntoView({ behavior: 'smooth' });
+          
+          // Show toast for referral achievement
+          toast({
+            title: "🏆 Your Referral Status",
+            description: "Pawan Agarwal referred 25 members and earned ₹3,500",
+            duration: 4000,
+          });
+        }, 300);
+      }
+    }
+  }, [location.hash, toast]);
 
 
   const handleSignOut = () => {
@@ -123,6 +146,32 @@ const Profile = () => {
               Back to Home
             </Button>
             <h1 className="text-xl font-bold">Profile</h1>
+
+            {/* Apollo Organization Badge with Tooltip */}
+            {/* Apollo Organization Badge with Tooltip */}
+<TooltipProvider>
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <div className="bg-primary/5 px-4 py-2 rounded-full flex items-center gap-3 cursor-help border border-primary/10">
+        <img 
+          src="https://companieslogo.com/img/orig/APOLLOHOSP.NS_BIG-7f75df62.png?t=1720244490" 
+          alt="Apollo Hospitals" 
+          className="h-6 object-contain" 
+        />
+        <span className="text-sm font-medium text-primary">Enterprise Plan</span>
+        <Info className="h-4 w-4 text-primary/60" />
+      </div>
+    </TooltipTrigger>
+    <TooltipContent>
+      <div className="space-y-2 max-w-sm text-base">
+        <p className="font-medium">Apollo Hospitals Corporate Wellness Program</p>
+        <p className="text-sm">You have been referred by Apollo Hospitals as part of their corporate wellness initiative.</p>
+      </div>
+    </TooltipContent>
+  </Tooltip>
+</TooltipProvider>
+
+
           </div>
           <Button 
             onClick={() => navigate('/onboarding')} 
@@ -140,6 +189,10 @@ const Profile = () => {
         <EmergencyContactCard emergencyContact={profileData.emergencyContact} />
         <MedicalInfoCard medicalInfo={profileData.medicalInfo} />
         <LifestyleCard lifestyle={profileData.lifestyle} />
+
+        <div className="my-8">
+          <ReferralTracking />
+        </div>
         
         <Button 
           variant="destructive" 
