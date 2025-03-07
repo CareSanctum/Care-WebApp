@@ -113,7 +113,7 @@ const SignIn = () => {
           </div>
           <div className="mt-4 text-center">
             <a href="/AdminLogin" className="text-sm text-primary hover:underline">
-              Login as an Admin
+              Login as a Care Manager
             </a>
           </div>
         </CardContent>

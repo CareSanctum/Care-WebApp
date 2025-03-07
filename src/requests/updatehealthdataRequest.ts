@@ -2,7 +2,7 @@ import axios from "axios";
 
 export const updatehealthdataRequest = async (data: any, username: string, accessToken: string) => {
     try{
-        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/health-data/update/${username}`, {
+        const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/health-data/update/${username}/`, {
             username: username,
             vital_signs:{
                 heart_rate: data.HeartRate,
@@ -17,10 +17,6 @@ export const updatehealthdataRequest = async (data: any, username: string, acces
                 sleep_level: data.SleepLevel,
                 stress_level:data.StressLevel,
                 blood_oxygen: data.BloodOxygen,
-            },
-            checkup_schedule:{
-             scheduled_date: data.ScheduledDate,
-             status: data.Status,
             },
             health_status_overview:{
                 status_message: data.StatusMessage,

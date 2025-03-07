@@ -62,17 +62,6 @@ export const MedicalInfoCard = ({ medicalInfo }: MedicalInfoProps) => {
             <p className="text-sm text-gray-500">Preferred Hospital/Clinic</p>
             <p className="font-medium">{medicalInfo.preferredHospital}</p>
           </div>
-          
-          <div className="md:col-span-2">
-            <p className="text-sm text-gray-500">Current Prescriptions</p>
-            <button
-              onClick={openPrescPdf}
-              className="flex items-center space-x-3 bg-gray-100 hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-lg transition"
-            >
-            <BsFiletypePdf size={30} color="red" />
-            <span className="id-proof-text">{getFileName(medicalInfo?.PrescsUrl)}</span>
-            </button>
-          </div>
         </div>
       </CardContent>
     </Card>

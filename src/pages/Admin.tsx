@@ -77,7 +77,7 @@ const Admin = () => {
             <div className="max-w-4xl mx-auto px-4">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="text-2xl text-center">Admin Dashboard</CardTitle>
+                        <CardTitle className="text-2xl text-center">Care Manager Dashboard</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
@@ -214,36 +214,6 @@ const Health_Metrics = ({ register, control}: { register: any, control: any}) =>
                 <div className="space-y-2">
                     <Label htmlFor="BloodOxygen">Blood Oxygen</Label>
                     <Input id="BloodOxygen" type="number" {...register("BloodOxygen", { valueAsNumber: true })}></Input>
-                </div>
-            </div>
-        </div>
-    )
-}
-const Checkup = ({ register, control}: { register: any, control: any}) => {
-    return(
-        <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-primary">Checkup Schedule</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="ScheduledDate">Scheduled Date</Label>
-                    <Input id="ScheduledDate" type="date" {...register("ScheduledDate")}></Input>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="Status">Status</Label>
-                    <Controller name="Status" control={control} defaultValue="Scheduled"
-                    render={({ field }) => (              
-                        <Select {...field} onValueChange={field.onChange}>
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Scheduled">Scheduled</SelectItem>
-                                <SelectItem value="Completed">Completed</SelectItem>
-                                <SelectItem value="Missed">Missed</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        )}
-                    />
                 </div>
             </div>
         </div>

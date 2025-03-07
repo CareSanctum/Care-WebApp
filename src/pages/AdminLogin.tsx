@@ -73,7 +73,7 @@ const AdminLogin = () => {
       <Card className="w-[400px]">
         <CardHeader className="space-y-1 flex flex-col items-center">
           <Logo />
-          <CardTitle className="text-2xl mt-4">Sign in to your Admin account</CardTitle>
+          <CardTitle className="text-xl mt-4">Sign in to your CareManager  account</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
