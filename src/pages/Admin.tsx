@@ -21,57 +21,73 @@ const Admin = () => {
     const adminusername = localStorage.getItem("admin_username");
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
+    
+    const [isLoading, setIsLoading] = useState(false); // Track loading state
+
     useEffect(() => {
         const fetchUsernames = async () => {
-          try {
-            const response = await viewuserlistRequest(adminusername);
-            setusernames(response.map(user => user.username)); // Assuming the response format is { usernames: [...] }
-          } catch (error) {
-            console.error("Error fetching usernames:", error);
-          }
+            try {
+                const response = await viewuserlistRequest(adminusername);
+                setusernames(response.map(user => user.username)); // Assuming the response format is { usernames: [...] }
+            } catch (error) {
+                console.error("Error fetching usernames:", error);
+            }
         };
         fetchUsernames();
-      }, []);
-      
-    const {adminaccessToken} = useAppSelector((state) => state.adminauth)
-    const onSubmit = async () =>{
+    }, []);
+    
+    const {adminaccessToken} = useAppSelector((state) => state.adminauth);
+
+    const onSubmit = async () => {
         const values = getValues();
         console.log(values);
-        try{
-            const response = await updatehealthdataRequest(values, values.User, adminaccessToken);
-            if(response.status == 200){
+        try {
+            setIsLoading(true); // Set loading to true when the request starts
+            const response = await updatehealthdataRequest(values, values.User);
+            if (response.status === 200) {
                 toast({
                     title: "Data Update",
-                    description: "User Data has been successfully updated!",
+                    description: "User Data has been successfully updated! Wait for Page to reload!",
                     variant: "success"
-                  });
-                  setTimeout(() => {
+                });
+                setTimeout(() => {
                     window.location.reload();
                 }, 2000);
             }
-        }catch(error){
+            else{
+                toast({
+                    title: "Something Went Wrong",
+                    description: "User Data has not been updated. Pleas Try again",
+                    variant: "destructive",
+                });
+            }
+        } catch (error) {
             console.log(error);
+        } finally {
+            setIsLoading(false); // Set loading to false after the request completes
         }
-    }
+    };
+
     const handleSignOut = () => {
-            // Clear session and local storage
-            dispatch(logout());
-          
-            // Clear all cookies
-          document.cookie.split(";").forEach((cookie) => {
+        // Clear session and local storage
+        dispatch(logout());
+
+        // Clear all cookies
+        document.cookie.split(";").forEach((cookie) => {
             document.cookie = cookie
-              .replace(/^ +/, "")
-              .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
-          });
-          navigate('/signin');
-            // Show toast message
-            toast({
-              title: "Signed out successfully",
-              duration: 2000,
-            });
-          
-            // Redirect to sign-in page
-    }
+                .replace(/^ +/, "")
+                .replace(/=.*/, `=;expires=${new Date(0).toUTCString()};path=/`);
+        });
+        navigate('/signin');
+        // Show toast message
+        toast({
+            title: "Signed out successfully",
+            duration: 2000,
+        });
+
+        // Redirect to sign-in page
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 py-8">
             <div className="max-w-4xl mx-auto px-4">
@@ -81,15 +97,19 @@ const Admin = () => {
                     </CardHeader>
                     <CardContent>
                         <form className="space-y-8" onSubmit={handleSubmit(onSubmit)}>
-                             <Selectusernames control={control} usernames={usernames} />
-                             <Vitals register={register}/>
-                             <Health_Metrics register={register} control={control}/>
-                             <Health_Status register={register}/>
-                             {/* <Checkup register={register} control={control}/> */}
+                            <Selectusernames control={control} usernames={usernames} />
+                            <Vitals register={register}/>
+                            <Health_Metrics register={register} control={control}/>
+                            <Health_Status register={register}/>
+                            {/* <Checkup register={register} control={control}/> */}
 
                             <div className="flex justify-between pt-6">
-                                <Button type="submit">
-                                    Save Data
+                                <Button type="submit" disabled={isLoading}>
+                                    {isLoading ? (
+                                        <div className="spinner-border animate-spin border-2 border-t-2 border-gray-600 rounded-full w-5 h-5" />
+                                    ) : (
+                                        "Save Data"
+                                    )}
                                 </Button>
                                 <Button onClick={() => handleSignOut()}>
                                     Sign Out
@@ -100,8 +120,9 @@ const Admin = () => {
                 </Card>
             </div>
         </div>
-    )
-}
+    );
+};
+
 
 
 export default Admin;

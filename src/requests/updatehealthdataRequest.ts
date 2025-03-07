@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const updatehealthdataRequest = async (data: any, username: string, accessToken: string) => {
+export const updatehealthdataRequest = async (data: any, username: string) => {
     try{
         const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/health-data/update/${username}/`, {
             username: username,
@@ -24,10 +24,6 @@ export const updatehealthdataRequest = async (data: any, username: string, acces
             }
 
         },{
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                "Content-Type": "application/json"
-            },
             validateStatus: (status) => {
               // Treat 2xx and 400 as valid status codes
               return status >= 200 && status < 401;
