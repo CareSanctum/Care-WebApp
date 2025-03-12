@@ -19,6 +19,8 @@ import AdminLogin from './pages/AdminLogin';
 import { setCredentials } from './store/slices/authSlice';
 import Terms  from './pages/Terms';
 import Privacy from './pages/Privacy';
+import B2BDashboard from "./pages/b2b/B2BDashboard";
+import B2BSignIn from "./pages/b2b/B2BSignIn";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -88,6 +90,9 @@ const AppRoutes = () => {
 
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
+
+      <Route path="/b2b/signin" element={<B2BSignIn />} />
+      <Route path="/b2b/dashboard" element={<B2BDashboard />} />
 
       <Route path="*" element={<NotFound />} />
     </Routes>
