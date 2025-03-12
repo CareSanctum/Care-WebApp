@@ -30,14 +30,14 @@ const SignUp = () => {
     setshowconfirmPassword(!showconfirmPassword);
   };
 
-  // useEffect(() => {
-  //   // Get referral code from URL if present
-  //   const params = new URLSearchParams(location.search);
-  //   const urlReferralCode = params.get('referal_code'); // Note: using 'referal_code' to match the URL format
-  //   if (urlReferralCode) {
-  //     setReferralCode(urlReferralCode);
-  //   }
-  // }, [location]);
+  useEffect(() => {
+    // Get referral code from URL if present
+    const params = new URLSearchParams(location.search);
+    const urlReferralCode = params.get('referral_code'); // Note: using 'referal_code' to match the URL format
+    if (urlReferralCode) {
+      setReferralCode(urlReferralCode);
+    }
+  }, [location]);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,6 +54,7 @@ const SignUp = () => {
           phone_number: phoneNumber,
           password,
           confirm_password: confirmPassword,
+          referral_code: referralCode,
           role: "USERS"
         })
       });
@@ -129,12 +130,6 @@ const SignUp = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <span
-                onClick={togglePasswordVisibility}
-                className="absolute top-1/2 right-2 transform -translate-y-1/2 cursor-pointer"
-              >
-                {showPassword ? <EyeOff size={24} /> : <Eye size={24} />}
-              </span>
             </div>
             <div className="space-y-2">
               <Input
@@ -146,14 +141,14 @@ const SignUp = () => {
                 required
               />
             </div>
-            {/* <div className="space-y-2">
+            <div className="space-y-2">
               <Input
                 type="text"
                 placeholder="Referral Code (Optional)"
                 value={referralCode}
                 onChange={(e) => setReferralCode(e.target.value)}
               />
-            </div> */}
+            </div>
             <Button type="submit" className="w-full">
               Sign Up
             </Button>

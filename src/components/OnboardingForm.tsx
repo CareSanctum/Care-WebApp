@@ -48,7 +48,7 @@ export const OnboardingForm = () => {
       <MedicalSection register={register} />
       <PreferredMedicalSection register={register} />
       <LifestyleSection register={register} control={control} />
-      <SpecialNeedsSection register={register} />
+      <SpecialNeedsSection control={control} />
 
       <div className="flex justify-between pt-6">
         <Button type="button" variant="outline" onClick={() => navigate("/profile")}>

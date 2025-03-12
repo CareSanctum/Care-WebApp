@@ -43,9 +43,9 @@ export const addReqeuest = async (userform: any, username: string, accessToken: 
       Object.entries({
         activity_level: userform.Activity_level,
         diet_preferences: userform.Dietary_prefernces,
-        requires_mobility_assistance: userform.mobilityAssistance === "on" ? "True": "False",
-        has_vision_impairment: userform.visionImpairment === "on" ? "True": "False",
-        has_hearing_impairment: userform.hearingImpairment === "on" ? "True": "False",
+        requires_mobility_assistance: userform.mobilityAssistance === true ? "True": "False",
+        has_vision_impairment: userform.visionImpairment === true ? "True": "False",
+        has_hearing_impairment: userform.hearingImpairment === true ? "True": "False",
       }).filter(([_, value]) => value !== null && value !== "") // Remove empty/null fields
     );
     try{

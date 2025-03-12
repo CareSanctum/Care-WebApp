@@ -8,26 +8,21 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useAppSelector } from '@/store/hooks';
 import { viewRequest } from '@/requests/viewRequest';
 import { useState, useEffect } from 'react';
-// import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-// import { Input } from "@/components/ui/input";
-// import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import useReferral from '@/hooks/use-refcode';
 
 
 export const HomeHeader = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  // const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  // // Generate a unique referral code
-  // const referralCode = React.useMemo(() => {
-  //   const userPart = "caresanctum";
-  //   const randomPart = Math.random().toString(36).substring(2, 8);
-  //   return `${userPart}_${randomPart}`;
-  // }, []);
+  // Generate a unique referral code
+  const referralLink = useReferral()?.link;
 
-  // const referralLink = `https://preview--gentlecarehub.lovable.app/signup?referal_code=${referralCode}`;
-
-  // // Show acquisition toast messages on component mount
+  // Show acquisition toast messages on component mount
   // useEffect(() => {
   //   // Show referral achievement toast after a short delay
   //   const timer = setTimeout(() => {
@@ -64,22 +59,22 @@ export const HomeHeader = () => {
     });
   };
 
-  // const handleCopyLink = () => {
-  //   navigator.clipboard.writeText(referralLink).then(() => {
-  //     setCopied(true);
-  //     toast({
-  //       title: "Referral link copied!",
-  //       description: "Share it with your friends and family",
-  //       duration: 2000,
-  //     });
-  //     setTimeout(() => setCopied(false), 2000);
-  //   });
-  // };
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(referralLink).then(() => {
+      setCopied(true);
+      toast({
+        title: "Referral link copied!",
+        description: "Share it with your friends and family",
+        duration: 2000,
+      });
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
-  // const navigateToReferrals = () => {
-  //   // Navigate to profile page and scroll to referrals section
-  //   navigate('/profile#referrals');
-  // };
+  const navigateToReferrals = () => {
+    // Navigate to profile page and scroll to referrals section
+    navigate('/profile#referrals');
+  };
 
   return (
     <header className="bg-white shadow-lg border-b border-primary/10">
@@ -98,7 +93,7 @@ export const HomeHeader = () => {
             SOS
           </Button>
           
-          {/* <Dialog>
+          <Dialog>
             <DialogTrigger asChild>
               <Button 
                 variant="outline" 
@@ -123,28 +118,28 @@ export const HomeHeader = () => {
                     <Link className="h-4 w-4 text-primary" />
                     <h3 className="font-semibold text-primary">Your Referral Link</h3>
                   </div>
-                  <div className="flex gap-2 items-center">
-                    <Input 
-                      value={referralLink}
-                      readOnly
-                      className="bg-white border-primary/20 text-sm font-medium focus-visible:ring-primary"
-                    />
-                    <Button 
-                      onClick={handleCopyLink} 
-                      size="sm" 
-                      className="flex items-center gap-1 bg-primary hover:bg-primary/90 transition-all animate-scale-in"
-                    >
-                      {copied ? (
-                        <>
-                          <Copy className="h-4 w-4" /> Copied
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="h-4 w-4" /> Copy
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                  <div className="grid grid-cols-[1fr,auto] gap-2 items-center w-full">
+  <Input 
+    value={referralLink}
+    readOnly
+    className="bg-white border-primary/20" 
+  />
+  <Button 
+    onClick={handleCopyLink} 
+    size="sm" 
+    className="whitespace-nowrap flex items-center gap-1"
+  >
+    {copied ? (
+      <>
+        <Copy className="h-4 w-4" /> Copied
+      </>
+    ) : (
+      <>
+        <Copy className="h-4 w-4" /> Copy
+      </>
+    )}
+  </Button>
+</div>
                 </div>
 
                 <div className="mt-6 flex justify-center">
@@ -158,7 +153,7 @@ export const HomeHeader = () => {
                 </div>
               </div>
             </DialogContent>
-          </Dialog> */}
+          </Dialog>
           
           <div 
             className="cursor-pointer" 

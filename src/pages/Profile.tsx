@@ -100,7 +100,7 @@ const Profile = () => {
     contact: {
       phone: userDetails?.patient?.phone || "",
       altPhone: userDetails?.patient?.alternate_phone || "",
-      email: userDetails?.patient?.emailAddress || "",
+      email: userDetails?.patient?.email || "",
       address: userDetails?.patient?.address || "",
       pincode: userDetails?.patient?.PINcode || "",
       idProofUrl: userDetails?.patient?.id_proof_url || "",
@@ -123,7 +123,7 @@ const Profile = () => {
     },
     lifestyle: {
       activityLevel:  userDetails?.lifestyle_details?.activity_level || "",
-      dietPreference: userDetails?.lifestyle_details?.diet_preferencesa || "",
+      dietPreference: userDetails?.lifestyle_details?.diet_preferences || "",
       specialNeeds: {
         mobilityAssistance: userDetails?.lifestyle_details?.requires_mobility_assistance || "",
         visionImpairment: userDetails?.lifestyle_details?.has_vision_impairment || "",
@@ -149,7 +149,7 @@ const Profile = () => {
 
             {/* Apollo Organization Badge with Tooltip */}
             {/* Apollo Organization Badge with Tooltip */}
-{/* <TooltipProvider>
+<TooltipProvider>
   <Tooltip>
     <TooltipTrigger asChild>
       <div className="bg-primary/5 px-4 py-2 rounded-full flex items-center gap-3 cursor-help border border-primary/10">
@@ -169,7 +169,7 @@ const Profile = () => {
       </div>
     </TooltipContent>
   </Tooltip>
-</TooltipProvider> */}
+</TooltipProvider>
 
 
           </div>
@@ -190,9 +190,9 @@ const Profile = () => {
         <MedicalInfoCard medicalInfo={profileData.medicalInfo} />
         <LifestyleCard lifestyle={profileData.lifestyle} />
 
-        {/* <div className="my-8">
+        <div className="my-8">
           <ReferralTracking />
-        </div> */}
+        </div>
         
         <Button 
           variant="destructive" 

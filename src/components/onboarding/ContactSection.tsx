@@ -17,10 +17,6 @@ export const ContactSection = ({ register }: { register: any }) => {
           <Input id="altPhone" type="tel" {...register("altPhone")} />
         </div>
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="email">Email Address</Label>
-          <Input id="email" type="email" {...register("email")}/>
-        </div>
-        <div className="space-y-2 md:col-span-2">
           <Label htmlFor="address">Current Address</Label>
           <Textarea id="address" {...register("address")}/>
         </div>

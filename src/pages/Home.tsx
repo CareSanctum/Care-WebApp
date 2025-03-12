@@ -11,7 +11,7 @@ import { ConciergeService } from "@/components/ConciergeService";
 import { BuddyScheduler } from "@/components/BuddyScheduler";
 import { CommunityEvents } from "@/components/CommunityEvents";
 import { useNavigate } from 'react-router-dom';
-import { Mail, Phone } from 'lucide-react';
+import { Mail, Phone, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useAppSelector } from '@/store/hooks';
 import { gethealthdataRequest } from '@/requests/gethealthdataRequest';
@@ -48,7 +48,8 @@ const formatCheckedAt = (isoString: string): string => {
 const Home = () => {
   const navigate = useNavigate();
     const {username} = useAppSelector((state) => state.auth);
-    const [userDetails, setUserDetails] = useState<any>(null);
+    const [userDetails, setUserDetails] = useState<any>(null)
+    const [loading, setLoading] = useState(false);;
     const [CMDetails, setCMdetails] = useState<any>(null);
       useEffect(() => {
       const fetchUserDetails = async () => {
@@ -69,11 +70,13 @@ const Home = () => {
       }, []);
 
       const handleContact = async () => {
+        setLoading(true);
         const message = await contactCMRequest(username);
         toast({
           title: "Mail sent to Care Manager",
           description: `${message}`,
         });
+        setLoading(false);
       }
 
       const status_message: string = userDetails?.health_status_overview?.status_message || "";
@@ -148,7 +151,16 @@ const Home = () => {
                 <p className="text-gray-700">{CMDetails?.care_manager?.phone_number}</p>
               </div>
               </div>
-              <Button className="w-full bg-primary hover:bg-primary/90" onClick={handleContact}>Contact Care Manager</Button>
+              <Button 
+                className="w-full bg-primary hover:bg-primary/90" 
+                onClick={handleContact}
+                disabled={!CMDetails?.care_manager?.email || !CMDetails?.care_manager?.phone_number}>
+                {loading ? (
+                  <Loader2 className="animate-spin h-5 w-5 text-white" />
+                ) : (
+                  'Contact Care Manager'
+                )}
+              </Button>
             </CardContent>
           </Card>
         </div>

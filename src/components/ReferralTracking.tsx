@@ -4,8 +4,8 @@ import {
   Card, 
   CardContent, 
   CardDescription, 
-  CardFooter, 
   CardHeader, 
+  CardFooter,
   CardTitle 
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,60 +14,32 @@ import { Input } from "@/components/ui/input";
 import { Copy, Users, Trophy, Award, Medal, Sparkles } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
-type ReferralUserType = {
-  name: string;
-  status: 'pending' | 'completed';
-  date: string;
-  reward?: number;
-};
-
-// Leaderboard data type
-type LeaderboardEntryType = {
-  name: string;
-  referrals: number;
-  earnings: number;
-  avatar?: string;
-};
+import { Avatar, AvatarFallback} from "@/components/ui/avatar";
+import useReferral from '@/hooks/use-refcode';
+import useReferralsData from '@/hooks/use-refdata';
+import useReferralRank from '@/hooks/use-rankedreferrals';
+import { useAppSelector } from '@/store/hooks';
+import useReferralStats from '@/hooks/use-referralstats';
 
 export const ReferralTracking = () => {
   const { toast } = useToast();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const {username} = useAppSelector((state) => state.auth);
   
   // Generate referral code
-  const referralCode = useMemo(() => {
-    const userPart = "caresanctum";
-    const randomPart = Math.random().toString(36).substring(2, 8);
-    return `${userPart}_${randomPart}`;
-  }, []);
 
-  const referralLink = `https://preview--gentlecarehub.lovable.app/signup?referal_code=${referralCode}`;
+  const referralLink = useReferral()?.link;
+  const referralcode = useReferral()?.code;
   
   const [copied, setCopied] = useState(false);
 
   // Sample data for referred users
-  const referredUsers: ReferralUserType[] = [
-    { name: "Sanjay Kumar", status: "completed", date: "2023-12-10", reward: 150 },
-    { name: "Priya Sharma", status: "pending", date: "2023-12-15" },
-    { name: "Rajesh Patel", status: "completed", date: "2023-11-28", reward: 150 },
-    { name: "Anita Desai", status: "completed", date: "2023-11-20", reward: 150 },
-    { name: "Vikram Singh", status: "pending", date: "2023-12-18" },
-  ];
+  const referredUsers =useReferralsData(referralcode);
+  const rankedData = useReferralRank();
+  const statsData = useReferralStats(referralcode);
 
-  // Sample leaderboard data
-  const leaderboardData: LeaderboardEntryType[] = [
-    { name: "Rohan Mehta", referrals: 42, earnings: 6300 },
-    { name: "Shreya Gupta", referrals: 38, earnings: 5700 },
-    { name: "Vikram Malhotra", referrals: 31, earnings: 4650 },
-    { name: "Pawan Agarwal", referrals: 25, earnings: 3500 },
-    { name: "Anita Reddy", referrals: 23, earnings: 3450 },
-    { name: "Rahul Shah", referrals: 21, earnings: 3150 },
-    { name: "Meera Joshi", referrals: 18, earnings: 2700 },
-  ];
-  
   // Current user's position in the leaderboard (index of Pawan Agarwal)
-  const currentUserPosition = leaderboardData.findIndex(entry => entry.name === "Pawan Agarwal");
+   const currentUserPosition = rankedData?.findIndex(entry => entry.username === username);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink).then(() => {
@@ -122,44 +94,57 @@ export const ReferralTracking = () => {
             </div>
             
             {/* Top 3 Leaderboard */}
+            {rankedData?.length >= 3 ? (
             <div className="flex justify-center items-end gap-2 mb-6">
               {/* 2nd Place */}
               <div className="flex flex-col items-center">
                 <Avatar className="h-12 w-12 border-2 border-gray-300">
-                  <AvatarFallback className="bg-gray-200 text-gray-700">{leaderboardData[1].name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback className="bg-gray-200 text-gray-700">
+                    {rankedData[1]?.username?.charAt(0) || "?"}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex items-center justify-center w-8 h-8 bg-gray-200 rounded-full text-gray-700 font-bold mt-2">2</div>
-                <p className="text-xs mt-1 font-medium">{leaderboardData[1].name.split(' ')[0]}</p>
-                <p className="text-xs">₹{leaderboardData[1].earnings}</p>
+                <p className="text-xs mt-1 font-medium">{rankedData[1]?.username || "N/A"}</p>
+                <p className="text-xs">₹{rankedData[1]?.total_earnings || "0"}</p>
               </div>
-              
+
               {/* 1st Place */}
               <div className="flex flex-col items-center">
                 <div className="relative">
                   <Avatar className="h-16 w-16 border-2 border-amber-500">
-                    <AvatarFallback className="bg-amber-100 text-amber-700">{leaderboardData[0].name.charAt(0)}</AvatarFallback>
+                    <AvatarFallback className="bg-amber-100 text-amber-700">
+                      {rankedData[0]?.username?.charAt(0) || "?"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                     <Medal className="h-6 w-6 text-amber-500" />
                   </div>
                 </div>
                 <div className="flex items-center justify-center w-8 h-8 bg-amber-500 rounded-full text-white font-bold mt-2">1</div>
-                <p className="text-xs mt-1 font-medium">{leaderboardData[0].name.split(' ')[0]}</p>
-                <p className="text-xs">₹{leaderboardData[0].earnings}</p>
+                <p className="text-xs mt-1 font-medium">{rankedData[0]?.username || "N/A"}</p>
+                <p className="text-xs">₹{rankedData[0]?.total_earnings || "0"}</p>
               </div>
-              
+
               {/* 3rd Place */}
               <div className="flex flex-col items-center">
                 <Avatar className="h-12 w-12 border-2 border-amber-700">
-                  <AvatarFallback className="bg-amber-50 text-amber-800">{leaderboardData[2].name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback className="bg-amber-50 text-amber-800">
+                    {rankedData[2]?.username?.charAt(0) || "?"}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex items-center justify-center w-8 h-8 bg-amber-700 rounded-full text-white font-bold mt-2">3</div>
-                <p className="text-xs mt-1 font-medium">{leaderboardData[2].name.split(' ')[0]}</p>
-                <p className="text-xs">₹{leaderboardData[2].earnings}</p>
+                <p className="text-xs mt-1 font-medium">{rankedData[2]?.username || "N/A"}</p>
+                <p className="text-xs">₹{rankedData[2]?.total_earnings || "0"}</p>
               </div>
             </div>
+          ) : (
+            <div className="text-center text-gray-500 mt-4">
+              No leaderboard data available
+            </div>
+          )}
             
             {/* Your Ranking */}
+            
             <div className="bg-primary/10 p-3 rounded-lg border border-primary/20">
               <h3 className="text-sm font-semibold text-center mb-2">Your Current Ranking</h3>
               <div className="flex items-center justify-between">
@@ -168,11 +153,12 @@ export const ReferralTracking = () => {
                     {currentUserPosition + 1}
                   </div>
                   <div>
-                    <p className="text-sm font-medium">Pawan Agarwal</p>
-                    <p className="text-xs text-gray-600">{leaderboardData[currentUserPosition].referrals} referrals</p>
+                    <p className="text-sm font-medium">{rankedData ? (rankedData[currentUserPosition].username) : (<div></div>)}</p>
                   </div>
                 </div>
-                <div className="text-lg font-bold text-primary">₹{leaderboardData[currentUserPosition].earnings}</div>
+              <div className="text-lg font-bold text-primary">
+                {rankedData ? (`₹${rankedData[currentUserPosition].total_earnings}`) : (<div></div>)}
+              </div>
               </div>
             </div>
             
@@ -196,37 +182,36 @@ export const ReferralTracking = () => {
           <TabsList className="w-full">
             <TabsTrigger value="share" className="flex-1">Share & Earn</TabsTrigger>
             <TabsTrigger value="history" className="flex-1">Referral History</TabsTrigger>
-            <TabsTrigger value="rewards" className="flex-1">My Rewards</TabsTrigger>
           </TabsList>
           
           <TabsContent value="share" className="space-y-4">
-            <div className="mt-4 bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/20">
+            <div className="mt-4 bg-gradient-to-r from-primary/10 to-secondary/10 p-4 rounded-lg border border-primary/20 w-full">
               <div className="mb-2 flex items-center gap-2">
                 <Users className="h-4 w-4 text-primary" />
                 <h3 className="font-semibold">Your Referral Link</h3>
               </div>
-              <div className="flex gap-2 items-center">
-                <Input 
-                  value={referralLink}
-                  readOnly
-                  className="bg-white border-primary/20"
-                />
-                <Button 
-                  onClick={handleCopyLink} 
-                  size="sm" 
-                  className="whitespace-nowrap flex items-center gap-1"
-                >
-                  {copied ? (
-                    <>
-                      <Copy className="h-4 w-4" /> Copied
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4" /> Copy
-                    </>
-                  )}
-                </Button>
-              </div>
+              <div className="grid grid-cols-[1fr,auto] gap-2 items-center w-full">
+  <Input 
+    value={referralLink}
+    readOnly
+    className="bg-white border-primary/20" 
+  />
+  <Button 
+    onClick={handleCopyLink} 
+    size="sm" 
+    className="whitespace-nowrap flex items-center gap-1"
+  >
+    {copied ? (
+      <>
+        <Copy className="h-4 w-4" /> Copied
+      </>
+    ) : (
+      <>
+        <Copy className="h-4 w-4" /> Copy
+      </>
+    )}
+  </Button>
+</div>
             </div>
             
             <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
@@ -264,80 +249,45 @@ export const ReferralTracking = () => {
             <div className="space-y-4 mt-4">
               <div className="flex items-center justify-between pb-2 border-b">
                 <h3 className="font-semibold">Referred Users</h3>
-                <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full">
-                  Total: {referredUsers.length}
-                </span>
               </div>
               
-              {referredUsers.map((user, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold">
-                      {user.name.charAt(0)}
+              <div className="overflow-y-auto max-h-[calc(3*100px)] p-3">
+                {referredUsers.map((user, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold">
+                        {user.username.charAt(0)}
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{user.username}</h4>
+                        <p className="text-xs text-gray-500">Referred on {new Date(user.date).toLocaleDateString()}</p>
+                      </div>
                     </div>
                     <div>
-                      <h4 className="font-medium">{user.name}</h4>
-                      <p className="text-xs text-gray-500">Referred on {new Date(user.date).toLocaleDateString()}</p>
+                      {user.status === 'IN_PROCESS' ? (
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                          Completed • ₹{user.reward}
+                        </span>
+                      ) : (
+                        <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                          Pending
+                        </span>
+                      )}
                     </div>
                   </div>
-                  <div>
-                    {user.status === 'completed' ? (
-                      <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                        Completed • ₹{user.reward}
-                      </span>
-                    ) : (
-                      <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
-                        Pending
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="rewards">
-            <div className="space-y-4 mt-4">
-              <div className="bg-gradient-to-r from-amber-50 to-amber-100 p-4 rounded-lg border border-amber-200 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Trophy className="h-6 w-6 text-amber-500" />
-                  <div>
-                    <h3 className="font-semibold">Total Rewards Earned</h3>
-                    <p className="text-sm text-gray-600">Keep referring to earn more!</p>
-                  </div>
-                </div>
-                <div className="text-2xl font-bold text-amber-600">₹450</div>
-              </div>
-              
-              <div className="bg-white p-4 rounded-lg border border-gray-200">
-                <h3 className="font-semibold mb-3">Recent Rewards</h3>
-                <div className="space-y-2">
-                  {referredUsers
-                    .filter(user => user.status === 'completed')
-                    .map((user, index) => (
-                      <div key={index} className="flex items-center justify-between py-2 border-b last:border-0">
-                        <div className="flex items-center gap-2">
-                          <Award className="h-4 w-4 text-primary" />
-                          <span>{user.name}</span>
-                        </div>
-                        <div className="font-medium">₹{user.reward}</div>
-                      </div>
-                    ))}
-                </div>
+                ))}
               </div>
             </div>
           </TabsContent>
         </Tabs>
       </CardContent>
-      <CardFooter className="flex justify-center border-t pt-4">
-        <Button 
-          onClick={handleCopyLink}
-          variant="outline"
-          className="w-full sm:w-auto flex items-center gap-2"
-        >
-          <Copy className="h-4 w-4" />
-          {copied ? "Copied!" : "Copy Referral Link"}
-        </Button>
+      <CardFooter className="flex justify-between border-t pt-4">
+                <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full">
+                  Users Referred: {statsData?.total_leads_count}
+                </span>
+                <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded-full">
+                  Total Earnings: ₹{statsData?.total_commission}
+                </span>
       </CardFooter>
     </Card>
   );
