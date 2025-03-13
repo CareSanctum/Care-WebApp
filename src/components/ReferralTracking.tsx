@@ -11,20 +11,37 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Copy, Users, Trophy, Award, Medal, Sparkles } from "lucide-react";
+import { Copy, Users, Trophy, Award, Medal, Sparkles , Info} from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback} from "@/components/ui/avatar";
-import useReferral from '@/hooks/use-refcode';
-import useReferralsData from '@/hooks/use-refdata';
-import useReferralRank from '@/hooks/use-rankedreferrals';
+import useReferral from '@/hooks/Referrals/use-refcode';
+import useReferralsData from '@/hooks/Referrals/use-refdata';
+import useReferralRank from '@/hooks/Referrals/use-rankedreferrals';
 import { useAppSelector } from '@/store/hooks';
-import useReferralStats from '@/hooks/use-referralstats';
+import useReferralStats from '@/hooks/Referrals/use-referralstats';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import useReferralDetails from '@/hooks/Referrals/use-referrerdata';
+import { createleadRequest } from '@/requests/Referrals/createleadRequest';
 
 export const ReferralTracking = () => {
   const { toast } = useToast();
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const {username} = useAppSelector((state) => state.auth);
+
+const [referralCode, setReferralCode] = useState("");
+
+const handleSubmit = async () => {
+  if (!referralCode.trim()) return;
+
+  try {
+    await createleadRequest(username, referralCode);
+    alert("Referral code submitted successfully!");
+  } catch (error) {
+    console.error("Error submitting referral code:", error);
+    alert("Failed to submit referral code.");
+  }
+};
   
   // Generate referral code
 
@@ -52,7 +69,7 @@ export const ReferralTracking = () => {
       setTimeout(() => setCopied(false), 2000);
     });
   };
-
+  const referrerDetails = useReferralDetails();
   return (
     <Card className="w-full" id="referrals">
       <CardHeader>
@@ -60,6 +77,38 @@ export const ReferralTracking = () => {
           <div className="flex items-center gap-2">
             <Trophy className="h-5 w-5 text-amber-500" />
             <CardTitle>My Referrals</CardTitle>
+            { referrerDetails?.type != "B2C_USER" ? <div></div> :(<TooltipProvider>
+            <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="bg-primary/5 px-4 py-2 rounded-full flex items-center gap-3 cursor-help border border-primary/10">
+                <Info className="h-4 w-4 text-primary/60" />
+              </div>
+            </TooltipTrigger>
+              <TooltipContent>
+                <div className="space-y-2 max-w-sm text-base">
+                  <p className="text-sm">You have been referred by {referrerDetails?.username} through their referral code</p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>)}
+          <div className="flex items-center gap-2">
+      <input
+        type="text"
+        value={referrerDetails ? referrerDetails.referral_code : referralCode}
+        onChange={(e) => setReferralCode(e.target.value)}
+        placeholder="Enter referral code"
+        className="border border-gray-300 rounded-md px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+        disabled={!!referrerDetails}
+      />
+      <button
+        className="bg-primary text-white px-3 py-1 text-sm rounded-md hover:bg-primary/80 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        disabled={!!referrerDetails || !referralCode.trim()}
+        onClick={handleSubmit}
+      >
+        Use code
+      </button>
+    </div>
+
           </div>
           <Button
             variant="ghost"

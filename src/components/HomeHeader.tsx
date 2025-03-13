@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import useReferral from '@/hooks/use-refcode';
+import useReferral from '@/hooks/Referrals/use-refcode';
 
 
 export const HomeHeader = () => {

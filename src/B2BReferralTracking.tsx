@@ -12,8 +12,8 @@ import { Copy, Users, Award } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useAppSelector } from '@/store/hooks';
 import useB2BReferral from '@/hooks/use-b2brefcode';
-import useReferralsData from '@/hooks/use-refdata';
-import useReferralStatsB2B from '@/hooks/use-referralstatsB2B';
+import useReferralsData from '@/hooks/Referrals/use-refdata';
+import useReferralStatsB2B from '@/hooks/Referrals/use-referralstatsB2B';
 
 export const B2BReferralTracking = () => {
   const { toast } = useToast();

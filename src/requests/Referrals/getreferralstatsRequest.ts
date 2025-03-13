@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ReferralStatsType } from "@/hooks/use-referralstats";
+import { ReferralStatsType } from "@/hooks/Referrals/use-referralstats";
 export const getreferralstatsRequest = async (username: string, referral_code: string) => {
     try{
         const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/referrals/get-b2c-referral-stats/`, {

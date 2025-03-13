@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ReferralUserType } from "@/hooks/use-refdata";
+import { ReferralUserType } from "@/hooks/Referrals/use-refdata";
 
 export const  getreferralsdata = async (username: string, referral_code: string) => {
     try{

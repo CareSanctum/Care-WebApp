@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ReferralRankType } from "@/hooks/use-rankedreferrals";
+import { ReferralRankType } from "@/hooks/Referrals/use-rankedreferrals";
 
 export const getreferralsrankRequest = async () => {
     try{

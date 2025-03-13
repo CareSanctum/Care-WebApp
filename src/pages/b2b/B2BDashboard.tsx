@@ -4,9 +4,9 @@ import { B2BHeader } from './components/B2BHeader';
 import { EarningsCelebration } from './components/EarningsCelebration';
 import { ReferralTable } from './components/ReferralTable';
 import { ReferralUser, Notification } from './types';
-import useReferral from '@/hooks/use-refcode';
-import useReferralStatsB2B from '@/hooks/use-referralstatsB2B';
-import useReferralsData from '@/hooks/use-refdata';
+import useReferral from '@/hooks/Referrals/use-refcode';
+import useReferralStatsB2B from '@/hooks/Referrals/use-referralstatsB2B';
+import useReferralsData from '@/hooks/Referrals/use-refdata';
 import { B2BReferralTracking } from '@/B2BReferralTracking';
 
 // Mock data for testing
