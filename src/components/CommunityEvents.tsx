@@ -36,7 +36,7 @@ export const CommunityEvents = () => {
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[300px] pr-4">
-          {events.map((event) => (
+          {events?.map((event) => (
             <div key={event.id} className="mb-4 p-4 border rounded-lg bg-white">
               <div className="flex justify-between items-start mb-2">
                 <div>
