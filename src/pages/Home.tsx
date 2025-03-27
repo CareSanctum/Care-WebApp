@@ -75,6 +75,7 @@ const Home = () => {
   const [isGoogleFitDialogOpen, setIsGoogleFitDialogOpen] = useState(false);
   const [dataTab, setDataTab] = useState<'primary' | 'additional'>('primary');
 
+
   // This would come from an actual API in a real app
   const lastSyncTime = new Date();
 
@@ -106,16 +107,107 @@ const Home = () => {
     setLoading(false);
   };
 
-  const handleConnectGoogleFit = () => {
-    // In a real app, this would trigger Google OAuth and API connection
-    setIsGoogleFitConnected(true);
-    setIsGoogleFitDialogOpen(false);
-    
-    toast({
-      title: "Google Fit Connected",
-      description: "Your Google Fit account has been successfully connected.",
-    });
+  useEffect(() => {
+    const checkGoogleFitConnection = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/google-fit/refresh/?user_name=${username}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          setIsGoogleFitConnected(true);
+          console.log("✅ Google Fit connected successfully.");
+        } else {
+          setIsGoogleFitConnected(false);
+          console.log("⚠️ Google Fit connection failed.");
+        }
+      } catch (error) {
+        console.error("❌ Error checking Google Fit connection:", error);
+        setIsGoogleFitConnected(false);
+      }
+    };
+
+    checkGoogleFitConnection();
+  }, []);
+
+  const handleConnectGoogleFit = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/google-fit/auth?user_name=${username}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Add auth token if required
+          },
+        }
+      );
+  
+      if (response.ok) {
+        const data = await response.json();
+  
+        if (data.auth_url) {
+          // Manually redirect to the Google Fit auth URL
+          handleAuthRedirect(data.auth_url);
+        } else {
+          toast({
+            title: "Error Connecting Google Fit",
+            description: "Auth URL not received.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        const errorData = await response.json();
+        toast({
+          title: "Error Connecting Google Fit",
+          description: errorData?.message || "Something went wrong.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error connecting Google Fit:", error);
+      toast({
+        title: "Error",
+        description: "Unable to connect Google Fit.",
+        variant: "destructive",
+      });
+    }
   };
+
+  let popupWindow: Window | null = null;
+let popupInterval: NodeJS.Timeout | null = null;
+
+
+
+const handleAuthRedirect = (authUrl: string) => {
+  if (!popupWindow || popupWindow.closed) {
+    // Open the popup if not already opened
+    popupWindow = window.open(authUrl, "_blank", "width=600,height=600");
+
+    // Start checking if the popup is closed
+    if (popupInterval) {
+      clearInterval(popupInterval);
+    }
+    popupInterval = setInterval(() => {
+      if (popupWindow?.closed) {
+        clearInterval(popupInterval!);
+        setIsGoogleFitConnected(true); // Show success message when popup is closed
+      }
+    }, 500);
+  } else {
+    // If already opened, update the same popup's URL
+    popupWindow.location.href = authUrl;
+  }
+};
+
+  
 
   // Extract health data from user details
   const status_message: string = userDetails?.health_status_overview?.status_message || "";
@@ -179,7 +271,7 @@ const Home = () => {
         <Dialog open={isGoogleFitDialogOpen} onOpenChange={setIsGoogleFitDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle>Connect Google Fit</DialogTitle>
+              {isGoogleFitConnected?<DialogTitle>Connect Google Fit</DialogTitle>:<DialogTitle>Connected toGoogle Fit</DialogTitle>}
               <DialogDescription>
                 Access your health data from Google Fit to get more insights.
               </DialogDescription>
