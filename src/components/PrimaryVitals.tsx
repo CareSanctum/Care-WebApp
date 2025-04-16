@@ -12,15 +12,6 @@ type PrimaryVitalsProps = {
 };
 
 export const PrimaryVitals = ({ response }: PrimaryVitalsProps) => {
-  const getGridClass = (count: number) => {
-    return `grid-cols-1 md:grid-cols-2 ${
-      count === 1 ? "lg:grid-cols-1" :
-      count === 2 ? "lg:grid-cols-2" :
-      count === 3 ? "lg:grid-cols-3" :
-      count === 4 ? "lg:grid-cols-2" : 
-      "lg:grid-cols-3" // 6+ items → 3 columns (2 per row)
-    }`;
-  };
   const { config, configloading, error } = useHomeConfig();
   if (configloading) {
     return (
@@ -37,11 +28,15 @@ export const PrimaryVitals = ({ response }: PrimaryVitalsProps) => {
   return (
     <div>
       <h2 className="text-xl font-semibold mb-4 text-primary">Primary Vitals</h2>
-      <div className={`grid gap-6 ${getGridClass(response?.PrimaryVitals?.length || 6)}`}>
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4`}>
       {
         response?.PrimaryVitals?.map((metric, index) => {
           const { Code, Title, Latestvalue, ValueUnit, icon, visible, lastChecked, trendData, tooltipDescription, tooltipUnit, tooltipNormalRange} = metric;
+          const isLast = index === response.AdditionalMetrics.length - 1;
+          const isOdd = response.AdditionalMetrics.length % 2 !== 0;
+          const spanFullWidth = isLast && isOdd;
           return (
+            <div key={index} className={spanFullWidth ? 'md:col-span-2' : ''}>
             <HealthMetricCard
               Code={Code}
               key={index}  // Ensure each item has a unique key for list rendering
@@ -56,6 +51,7 @@ export const PrimaryVitals = ({ response }: PrimaryVitalsProps) => {
               tooltipUnit={tooltipUnit}
               tooltipNormalRange={tooltipNormalRange}
             />
+            </div>
           );
         })
       }
