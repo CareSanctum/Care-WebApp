@@ -35,7 +35,7 @@ export const useMetricsData = (start_time: string, end_time: string) => {
     useEffect(() => {
         const fetchConfig = async () => {
             try {
-                const response = await axios.get(`http://0.0.0.0:8080/api/user-metrics/${username}/`, {
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/user-metrics/${username}/`, {
                     params:{
                         start_time: start_time,
                         end_time: end_time,
