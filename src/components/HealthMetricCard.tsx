@@ -14,8 +14,19 @@ import {
 import { MetricType } from '@/hooks/use-MetricsData';
 
 
-function formatNumberOrPair(value: number | [number, number]): string {
-    return typeof value === "number" ? value.toString() : `${value[0]}/${value[1]}`;
+function formatNumberOrPair(value: number | [number | null, number | null] | null): string {
+  if (value === null) return "--";
+  
+  if (typeof value === "number") {
+    return value.toString();
+  }
+
+  const [first, second] = value;
+  if (first === null || second === null) {
+    return "--";
+  }
+
+  return `${first}/${second}`;
 }
 const DynamicIcon = ({ iconName }: { iconName: string }) => {
   const IconComponent = (LucideIcons as any)[iconName] || LucideIcons.Info; // Default to Info
@@ -35,6 +46,18 @@ function mergeTrendData(trendData: MetricType['trendData'], xKey: string) {
   });
   console.log(merged);
   return Object.values(merged);
+}
+
+function formatIsoToReadableTime(isoString: string): string {
+  const date = new Date(isoString);
+
+  return date.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 }
 
 export const HealthMetricCard = ({ 
@@ -82,35 +105,51 @@ export const HealthMetricCard = ({
       {visible ? (
       <CardContent>
       <div className="text-2xl font-bold mb-2">{formattedValue} {ValueUnit}</div>
-      <div className="text-xs text-gray-500 mb-2">Last checked: {lastChecked}</div>
+      <div className="text-xs text-gray-500 mb-2">{lastChecked  ? <div>Last checked: {formatIsoToReadableTime(lastChecked)}</div> : <></>}</div>
       <div className="h-32">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={mergedData} margin={{ top: 0, right: 3, bottom: 3, left: 3 }}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey={xKey} 
-              fontSize={10}
-              tickFormatter={(value) => isTimeBased ? value : new Date(value).toLocaleDateString(undefined, { weekday: 'short' })}
-              interval={0}
-            />
-            <YAxis fontSize={10} />
-            <Tooltip />
-            <Legend iconType= 'plainline'/>
-            {trendData.map((dataSet) => (
-              <Line
-                key={dataSet.name}
-                // data={dataSet.data}
-                type="linear" 
-                dataKey={dataSet.name}
-                name={dataSet.name}
-                stroke={dataSet.color}
-                strokeWidth={2}
-                dot={true}
-              />
-            ))}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
+            {trendData ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={mergedData} margin={{ top: 20, right: 20, bottom: 5, left: 5 }} >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis 
+                    dataKey={xKey} 
+                    fontSize={10}
+                    tickFormatter={(value) => {
+                      if (isTimeBased) {
+                        const date = new Date(value);
+                        return date.toLocaleTimeString(undefined, {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: false,
+                        });
+                      } else {
+                        return new Date(value).toLocaleDateString(undefined, { weekday: 'short' });
+                      }
+                    }}
+                    interval={0}
+                  />
+                  <YAxis fontSize={10} />
+                  <Tooltip />
+                  <Legend iconType="plainline" />
+                  {trendData.map((dataSet) => (
+                    <Line
+                      key={dataSet.name}
+                      type="linear" 
+                      dataKey={dataSet.name}
+                      name={dataSet.name}
+                      stroke={dataSet.color}
+                      strokeWidth={2}
+                      dot={true}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                No data available
+              </div>
+            )}
+          </div>
     </CardContent>
       ): <BlurredGraph RestrictedText="Upgrade to premium to access this feature"/> }
     </Card>

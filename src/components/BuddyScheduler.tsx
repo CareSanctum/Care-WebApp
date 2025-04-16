@@ -93,7 +93,10 @@ export const BuddyScheduler = ({config}: {config: HomepageConfig}) => {
   const getRestrictedMessage = (name: string) => {
     return config?.features.find(f => f.name === name)?.restrictedMessage ?? "Restricted";
   };
-  
+  console.log(needsBlur("ScheduleVisits_CM"));
+  console.log(needsBlur("ScheduleVisits_Buddy"));
+  console.log(getRestrictedMessage("ScheduleVisits_CM"));
+  console.log(getRestrictedMessage("ScheduleVisits_Buddy"));
   return (
     <Card className="shadow-md h-full">
       <CardHeader>
@@ -138,8 +141,9 @@ export const BuddyScheduler = ({config}: {config: HomepageConfig}) => {
             </TabsTrigger>
           </TabsList>
 
-          {needsBlur("ScheduleVisits_CM") ? <TabsContent value="care_manager" className="space-y-4 flex-1 flex flex-col">
+          <TabsContent value="care_manager" className="space-y-4 flex-1 flex flex-col">
             {!showCareManagerScheduler ? (
+              needsBlur("ScheduleVisits_CM") ? <BlurredScheduler RestrictedText={getRestrictedMessage("ScheduleVisits_CM")}/> : 
               <div className="p-4 bg-gray-50 rounded-lg">
                 <h3 className="font-medium mb-2">Next Scheduled Visit</h3>
                 {visitData  && visitData["care_manager"] ? (
@@ -153,7 +157,7 @@ export const BuddyScheduler = ({config}: {config: HomepageConfig}) => {
                 </Button>
               </div>
             ) : renderScheduler('care_manager')}
-          </TabsContent>: <BlurredScheduler RestrictedText={getRestrictedMessage("ScheduleVisits_CM")}/>}
+          </TabsContent>
 
           <TabsContent value="doctor" className="space-y-4">
             {!showDoctorScheduler ? (
@@ -177,9 +181,9 @@ export const BuddyScheduler = ({config}: {config: HomepageConfig}) => {
             ) : renderScheduler('doctor')}
           </TabsContent>
 
-          {needsBlur("ScheduleVisits_Buddy") ? <TabsContent value="buddy" className="space-y-4">
+           <TabsContent value="buddy" className="space-y-4">
               {!showBuddyScheduler ? (
-              <div className="p-4 bg-gray-50 rounded-lg">
+              needsBlur("ScheduleVisits_Buddy") ? <BlurredScheduler RestrictedText={getRestrictedMessage("ScheduleVisits_Buddy")}/>:<div className="p-4 bg-gray-50 rounded-lg">
                 <h3 className="font-medium mb-2">Next Scheduled Visit</h3>
                 {visitData && visitData && visitData["buddy"] ? (
                   <p className="text-sm text-gray-600">{changeDateFormat(visitData["buddy"].scheduled_datetime)}</p>
@@ -193,7 +197,7 @@ export const BuddyScheduler = ({config}: {config: HomepageConfig}) => {
                 </div>
               </div>
             ) : renderScheduler('doctor')}
-          </TabsContent>: <BlurredScheduler RestrictedText={getRestrictedMessage("ScheduleVisits_Buddy")}/>}
+          </TabsContent>
         </Tabs>
       </CardContent>
     </Card>

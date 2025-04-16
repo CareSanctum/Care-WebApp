@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useAppSelector } from "@/store/hooks";
 
 export interface Feature {
   name: string;
@@ -15,12 +16,14 @@ const  useHomeConfig = () => {
     const [config, setConfig] = useState<HomepageConfig | null>(null);
     const [configloading, setConfigLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const {username} = useAppSelector((state) => state.auth);
 
     useEffect(() => {
         const fetchConfig = async () => {
             try {
-                const response = await axios.get('https://5c1fced9-e3b6-4603-a87e-92d1e86fb266.mock.pstmn.io/config/');
+                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/plans/get-configuration/?username=${username}`);
                 const parsedData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
+                console.log(parsedData);
                 setConfig(parsedData);
           
             } catch (err:any) {

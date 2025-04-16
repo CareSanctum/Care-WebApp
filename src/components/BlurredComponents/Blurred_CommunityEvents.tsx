@@ -61,7 +61,32 @@ const BlurredCommunityEvents = ({ RestrictedText }: { RestrictedText: string }) 
                     </Badge>
                   )} */}
                 </div>
-              
+                <div className="mb-4 p-4 border rounded-lg bg-white">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-medium"></h4>
+                      <p className="text-sm text-muted-foreground"></p>
+                      <p className="text-sm text-muted-foreground"></p>
+                    </div>
+                    {/* <Badge variant={event.status === 'upcoming' ? 'secondary' : 'outline'}>
+                      {event.status}
+                    </Badge> */}
+                  </div>
+                  {
+                    <Button 
+                      className="w-full mt-2" 
+                      variant="outline"
+                    >
+                      Register
+                    </Button>
+                  }
+                  {/* {event.status === 'past' && event.registered && (
+                    <Badge variant="outline" className="mt-2">
+                      Attended
+                    </Badge>
+                  )} */}
+                </div>
+                
             </div>
           </CardContent>
           <OverlayText RestrictedText={RestrictedText} />

@@ -92,11 +92,12 @@ const Home = () => {
 
   const [dataSource, setDataSource] = useState<DataSource>('doctor');
   const [timePeriod, setTimePeriod] = useState<TimePeriod>('Week');
-  const [isGoogleFitConnected, setIsGoogleFitConnected] = useState(false);
+  const [isGoogleFitConnected, setIsGoogleFitConnected] = useState(true);
   const [isGoogleFitDialogOpen, setIsGoogleFitDialogOpen] = useState(false);
   const [dataTab, setDataTab] = useState<'primary' | 'additional'>('primary');
   const { weeklydata } = useWeeklyGoogleFitData();
   const { Hourlydata } = useHourlyGoogleFitData();
+  const isGoogleFitConnected_Debug = true;
   console.log(Hourlydata);
 
   // This would come from an actual API in a real app
@@ -249,8 +250,13 @@ const Home = () => {
   const StressLevel: string = userDetails?.health_metrics?.stress_level || "";
   const BloodOxygen: number = userDetails?.health_metrics?.blood_oxygen || 0;
   const health_checked_at: string = userDetails?.health_metrics?.checked_at || "";
-
-  const {metricsData, metricserror, metricsloading} = useMetricsData();
+  const currentTime = new Date().toISOString();
+  const sevenHoursAgo = new Date();
+  sevenHoursAgo.setHours(sevenHoursAgo.getHours() - 7);
+  const sevenHoursAgoTime = sevenHoursAgo.toISOString();
+  console.log(sevenHoursAgoTime);
+  console.log(currentTime);
+  const {metricsData, metricserror, metricsloading} = useMetricsData(sevenHoursAgoTime, currentTime);
   const { config, configloading, error } = useHomeConfig();
   if (configloading) {
     return (
@@ -276,7 +282,7 @@ const Home = () => {
           <div className="flex-1">
           {needsBlur("HealthStatusCard") ? <BlurredHealthStatusCard RestrictedText={getRestrictedMessage("HealthStatusCard")} /> :<HealthStatusCard status_message={status_message} next_checkup_date={next_checkup_date} />}
           </div>
-          <Card className="md:w-1/3">
+          {/*<Card className="md:w-1/3">
             <CardContent className="p-4">
               <div className="flex flex-col space-y-2">
                 <h3 className="text-lg font-medium">Data Sources</h3>
@@ -304,11 +310,11 @@ const Home = () => {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
 
         {/* Google Fit Connection Dialog */}
-        <Dialog open={isGoogleFitDialogOpen} onOpenChange={setIsGoogleFitDialogOpen}>
+        {/*<Dialog open={isGoogleFitDialogOpen} onOpenChange={setIsGoogleFitDialogOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               {isGoogleFitConnected ? <DialogTitle>Connect Google Fit</DialogTitle> : <DialogTitle>Connected toGoogle Fit</DialogTitle>}
@@ -357,7 +363,7 @@ const Home = () => {
               </Button>
             </DialogFooter>
           </DialogContent>
-        </Dialog>
+        </Dialog>*/}
 
         {/* Filter section */}
         <Card>
@@ -378,9 +384,9 @@ const Home = () => {
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button
-                          className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${dataSource === 'googlefit' ? 'bg-primary text-white' : 'bg-muted hover:bg-muted/80'} ${!isGoogleFitConnected ? 'opacity-50 cursor-not-allowed' : ''}`}
-                          onClick={() => isGoogleFitConnected && setDataSource('googlefit')}
-                          disabled={!isGoogleFitConnected}
+                          className={`px-3 py-1 rounded-md text-sm flex items-center gap-1 ${dataSource === 'googlefit' ? 'bg-primary text-white' : 'bg-muted hover:bg-muted/80'} ${!isGoogleFitConnected_Debug ? 'opacity-50 cursor-not-allowed' : ''}`}
+                          onClick={() => isGoogleFitConnected_Debug && setDataSource('googlefit')}
+                          disabled={!isGoogleFitConnected_Debug}
                         >
                           <Smartphone className="h-3 w-3" />
                           Google Fit
@@ -418,7 +424,13 @@ const Home = () => {
         </Card>
 
         {/* Main metrics content */}
-        <Tabs defaultValue="primary" className="space-y-4" value={dataTab} onValueChange={(value) => setDataTab(value as 'primary' | 'additional')}>
+        {metricsloading ? (
+          <div className="flex justify-center items-center h-full">
+  <Loader2 className="animate-spin w-16 h-16 text-gray-500" />
+</div>    // Or a spinner component
+      ) : metricserror ? (
+        <div>Error: {metricserror}</div>
+      ) :<Tabs defaultValue="primary" className="space-y-4" value={dataTab} onValueChange={(value) => setDataTab(value as 'primary' | 'additional')}>
           <TabsList>
             <TabsTrigger value="primary">Primary Vitals</TabsTrigger>
             <TabsTrigger value="additional">Additional Metrics</TabsTrigger>
@@ -450,7 +462,7 @@ const Home = () => {
             )}
 
           </TabsContent>
-        </Tabs>
+        </Tabs>}
 
         <div className="grid gap-6 md:grid-cols-2">
           <TicketHistory />
