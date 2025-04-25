@@ -7,10 +7,10 @@ export const getticketRequest = async(username: string):Promise<Ticket[]> =>{
             params: {"username": username}
         })
         const transformedTickets: Ticket[] = response.data.map((ticket: any) => ({
-            id: ticket.ticket_number,
-            title: ticket.service_name,
+            id: ticket.id,
+            title: ticket.type,
             status: ticket.status,
-            date: ticket.date_initiated, 
+            date: ticket.created_at, 
           }));
       
           return transformedTickets;

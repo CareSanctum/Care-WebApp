@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAppSelector } from "@/store/hooks";
-import { start } from "repl";
 
 export interface MetricType {
     Code: string;
