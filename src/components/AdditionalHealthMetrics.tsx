@@ -6,6 +6,8 @@ import { WeeklyData } from '@/hooks/Google-Fit/use-WeeklyData';
 import { ResponseData } from '@/hooks/use-MetricsData';
 import useHomeConfig from '@/hooks/use-HomeConfig';
 import { Loader2 } from 'lucide-react';
+import { useAppSelector } from '@/store/hooks';
+import { use_RQHomeConfig } from '@/requests/RQ_requests/rq_getconf';
 
 
 
@@ -14,18 +16,22 @@ type AdditionalMetricsProps = {
 };
 
 export const AdditionalHealthMetrics = ({ response }: AdditionalMetricsProps) => {
-  const { config, configloading, error } = useHomeConfig();
-  if (configloading) {
+  const {username} = useAppSelector((state) => state.auth);
+  const {data, status, error} = use_RQHomeConfig(username);
+  if (status === 'pending') {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="animate-spin w-16 h-16 text-gray-500" />
       </div>
     );
   }
-  if (error) return <div>Error: {error}</div>;
+  if (status === "error") return <div>Error: {error.message}</div>;
   const needsBlur = (Servicename: string) => {
-    const feature = config?.features.find((feature) => feature.name === Servicename);
-    return feature ? feature.enabled : true;
+    const feature = data?.features.find((feature) => feature.name === Servicename);
+    return feature ? true : false;
+  }
+  const getRestrictedMessage = (name: string) => {
+    return data?.features.find(f => f.name === name)?.restrictedMessage ?? "Restricted";
   };
   return (
     <div>

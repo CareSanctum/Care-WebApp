@@ -1,48 +1,29 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useAppSelector } from "@/store/hooks";
+import axios, { AxiosResponse } from "axios";
+import { useQuery } from "@tanstack/react-query";
+interface Feature {
+    name: string;
+    enabled: boolean;
+    restrictedMessage: string;
+  }
 
-export interface Feature {
-  name: string;
-  enabled: boolean;
-  restrictedMessage: string;
-}
-export type HomepageConfig = {
+type HomepageConfig = {
   features: Feature[];
 };
 
-
-const  useHomeConfig = () => {
-    const [config, setConfig] = useState<HomepageConfig | null>(null);
-    const [configloading, setConfigLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const {username} = useAppSelector((state) => state.auth);
-
-    useEffect(() => {
-        const fetchConfig = async () => {
-            try {
-                const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/plans/get-configuration/?username=${username}`);
-                const parsedData = typeof response.data === 'string' ? JSON.parse(response.data) : response.data;
-                console.log(parsedData);
-                setConfig(parsedData);
-          
-            } catch (err:any) {
-                if (err.response) {
-                    setError(err.response.data.message || 'Server error');
-                  } else if (err.request) {
-                    // No response received
-                    setError('No response from server');
-                  } else {
-                    // Other errors
-                    setError(err.message || 'Unexpected error');
-                  }
-            } finally {
-                setConfigLoading(false);
-            }
-        };
-        fetchConfig();
-    }, []);
-    return { config, configloading, error };
+//possible responses 400 404 200 500
+async function getConfigRequest(username: string): Promise<HomepageConfig>{
+    try{
+        const response: AxiosResponse<HomepageConfig>= await axios.get(`${import.meta.env.VITE_BACKEND_URL}/plans/get-configuration/?username=${username}`);
+        const data = response.data;
+        return data;
+    }catch(error: any){
+        throw new Error(`Error: ${error.response}`)
+    }
 }
 
-export default useHomeConfig;
+export function useHomeConfig(username: string) {
+    return useQuery({
+        queryKey: ['AppConfig', {username}],
+        queryFn: () => getConfigRequest(username), 
+    })
+}  

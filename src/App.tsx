@@ -21,16 +21,9 @@ import Terms  from './pages/Terms';
 import Privacy from './pages/Privacy';
 import B2BDashboard from "./pages/b2b/B2BDashboard";
 import B2BSignIn from "./pages/b2b/B2BSignIn";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: false,
-      staleTime: 5 * 60 * 1000,
-    },
-  },
-});
+const queryClient = new QueryClient();
 
 const App = () => {
   return (
@@ -43,6 +36,7 @@ const App = () => {
             <AppRoutes />
           </TooltipProvider>
         </BrowserRouter>
+        <ReactQueryDevtools initialIsOpen={false} />
       </QueryClientProvider>
     </Provider>
   );
@@ -50,10 +44,15 @@ const App = () => {
 
 const AppRoutes = () => {
   const dispatch = useAppDispatch();
-  const { accessToken } = useAppSelector((state) => state.auth);
-  const [loading, setLoading] = useState(true); // Loading state to control route rendering
 
-  // Ensure access token from localStorage is set on app load if present
+  // Immediately sync isAuthenticated from localStorage on load
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    const token = localStorage.getItem('accessToken');
+    return !!token;
+  });
+
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const storedToken = localStorage.getItem('accessToken');
     const storedUsername = localStorage.getItem('username');
@@ -62,22 +61,25 @@ const AppRoutes = () => {
       dispatch(setCredentials({ accessToken: storedToken, username: storedUsername }));
     }
 
-    // Set loading to false after checking localStorage
+    // After setting credentials, stop loading
     setLoading(false);
   }, [dispatch]);
 
   const PrivateRoute = ({ element }: { element: JSX.Element }) => {
-    return accessToken ? element : <Navigate to="/signin" replace />;
+    return isAuthenticated ? element : <Navigate to="/signin" replace />;
+  };
+
+  const PublicRoute = ({ element }: { element: JSX.Element }) => {
+    return isAuthenticated ? <Navigate to="/home" replace /> : element;
   };
 
   if (loading) {
-    // Optionally, return a loading spinner or nothing while checking localStorage
-    return <div>Loading...</div>;
+    return null; // or show a spinner if you want
   }
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to={accessToken ? "/home" : "/signin"} replace />} />
+      <Route path="/" element={<Navigate to={isAuthenticated ? "/home" : "/signin"} replace />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/admin" element={<Admin />} />

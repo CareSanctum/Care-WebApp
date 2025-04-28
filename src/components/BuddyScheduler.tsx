@@ -6,13 +6,14 @@ import { useToast } from "@/components/ui/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { VideoIcon, Calendar as CalendarIcon, User } from 'lucide-react';
+import { VideoIcon, Calendar as CalendarIcon, User, Loader2 } from 'lucide-react';
 import { Input } from './ui/input';
 import { useAppSelector } from '@/store/hooks';
 import { schedulevisitRequest } from '@/requests/schedulevisitRequest';
 import useVisitData from '@/hooks/use-visits';
-import { HomepageConfig } from '@/hooks/use-HomeConfig';
+// import { HomepageConfig } from '@/hooks/use-HomeConfig';
 import { BlurredScheduler } from './BlurredComponents/Blurred_Scheduler';
+import { useHomeConfig } from '@/hooks/use-HomeConfig';
 
 
 const changeDateFormat = (date: string): string => {
@@ -22,7 +23,7 @@ const changeDateFormat = (date: string): string => {
   return datePart + " " +  timePart;
 }
 
-export const BuddyScheduler = ({config}: {config: HomepageConfig}) => {
+export const BuddyScheduler = () => {
   const { toast } = useToast();
   const [date, setDate] = React.useState<Date | null>(null);
   const [timeSlot, setTimeSlot] = React.useState<string>("");
@@ -86,12 +87,21 @@ export const BuddyScheduler = ({config}: {config: HomepageConfig}) => {
     );
   };
 
+  const {data, status, error} = useHomeConfig(username);
+  if (status === 'pending') {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="animate-spin w-16 h-16 text-gray-500" />
+      </div>
+    );
+  }
+  if (status === "error") return <div>Error: {error.message}</div>;
   const needsBlur = (Servicename: string) => {
-    const feature = config?.features.find((feature) => feature.name === Servicename);
+    const feature = data?.features.find((feature) => feature.name === Servicename);
     return feature ? true : false;
   }
   const getRestrictedMessage = (name: string) => {
-    return config?.features.find(f => f.name === name)?.restrictedMessage ?? "Restricted";
+    return data?.features.find(f => f.name === name)?.restrictedMessage ?? "Restricted";
   };
   console.log(needsBlur("ScheduleVisits_CM"));
   console.log(needsBlur("ScheduleVisits_Buddy"));

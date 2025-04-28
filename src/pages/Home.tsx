@@ -38,8 +38,10 @@ import { contactCMRequest } from '@/requests/contactCMReques';
 import { useHourlyGoogleFitData } from '@/hooks/Google-Fit/use-HourlyData';
 import { useWeeklyGoogleFitData } from '@/hooks/Google-Fit/use-WeeklyData';
 import BlurredPaymentsSection from '@/components/BlurredComponents/Blurred_PaymentsSection';
-import useHomeConfig from '@/hooks/use-HomeConfig';
-import { Feature } from '@/hooks/use-HomeConfig';
+// import useHomeConfig from '@/hooks/use-HomeConfig';
+// import { Feature } from '@/hooks/use-HomeConfig';
+import { useQuery } from '@tanstack/react-query';
+import { useHomeConfig } from '@/hooks/use-HomeConfig';
 // Data source types
 type DataSource = 'doctor' | 'googlefit';
 // Time period types
@@ -250,28 +252,21 @@ const Home = () => {
   const StressLevel: string = userDetails?.health_metrics?.stress_level || "";
   const BloodOxygen: number = userDetails?.health_metrics?.blood_oxygen || 0;
   const health_checked_at: string = userDetails?.health_metrics?.checked_at || "";
-  const currentTime = new Date().toISOString();
-  const sevenHoursAgo = new Date();
-  sevenHoursAgo.setHours(sevenHoursAgo.getHours() - 7);
-  const sevenHoursAgoTime = sevenHoursAgo.toISOString();
-  console.log(sevenHoursAgoTime);
-  console.log(currentTime);
-  const {metricsData, metricserror, metricsloading} = useMetricsData(sevenHoursAgoTime, currentTime);
-  const { config, configloading, error } = useHomeConfig();
-  if (configloading) {
+  const {data, status, error} = useHomeConfig(username);
+  if (status === 'pending') {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="animate-spin w-16 h-16 text-gray-500" />
       </div>
     );
   }
-  if (error) return <div>Error: {error}</div>;
+  if (status === "error") return <div>Error: {error.message}</div>;
   const needsBlur = (Servicename: string) => {
-    const feature = config?.features.find((feature) => feature.name === Servicename);
+    const feature = data?.features.find((feature) => feature.name === Servicename);
     return feature ? true : false;
   }
   const getRestrictedMessage = (name: string) => {
-    return config?.features.find(f => f.name === name)?.restrictedMessage ?? "Restricted";
+    return data?.features.find(f => f.name === name)?.restrictedMessage ?? "Restricted";
   };
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5">
@@ -424,13 +419,7 @@ const Home = () => {
         </Card>
 
         {/* Main metrics content */}
-        {metricsloading ? (
-          <div className="flex justify-center items-center h-full">
-  <Loader2 className="animate-spin w-16 h-16 text-gray-500" />
-</div>    // Or a spinner component
-      ) : metricserror ? (
-        <div>Error: {metricserror}</div>
-      ) :<Tabs defaultValue="primary" className="space-y-4" value={dataTab} onValueChange={(value) => setDataTab(value as 'primary' | 'additional')}>
+        {/* <Tabs defaultValue="primary" className="space-y-4" value={dataTab} onValueChange={(value) => setDataTab(value as 'primary' | 'additional')}>
           <TabsList>
             <TabsTrigger value="primary">Primary Vitals</TabsTrigger>
             <TabsTrigger value="additional">Additional Metrics</TabsTrigger>
@@ -462,7 +451,7 @@ const Home = () => {
             )}
 
           </TabsContent>
-        </Tabs>}
+        </Tabs> */}
 
         <div className="grid gap-6 md:grid-cols-2">
           <TicketHistory />
@@ -470,7 +459,7 @@ const Home = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
-          <BuddyScheduler config={config}/>
+          <BuddyScheduler />
           {needsBlur("CommunityEvents") ? ( <BlurredCommunityEvents RestrictedText={getRestrictedMessage("CommunityEvents")} />) : ( <CommunityEvents />)}
         </div>
 
