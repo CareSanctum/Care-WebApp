@@ -5,15 +5,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { Pill, Upload, FileText, FlaskConical } from 'lucide-react';
+import { Pill, Upload, FileText, FlaskConical, Loader2 } from 'lucide-react';
 import { useAppSelector } from '@/store/hooks';
 import { viewRequest } from '@/requests/viewRequest';
 import { sendfileRequest } from '@/requests/sendfileRequest';
-import usePrescriptions from '@/hooks/use-prescriptions';
-import { Prescription } from '@/hooks/use-prescriptions';
+import usePrescriptions, {uploadPresciption} from '@/hooks/use-prescriptions';
 import useLabReports, { LabReport } from '@/hooks/use-labreports';
 import {uploadmedicationRequest} from '@/requests/uploadmedicationRequest';
-import useMedications, {Medication} from '@/hooks/use-medications'
+import useMedications, {Medication} from '@/hooks/use-medications';
 
 export const PrescriptionManagement = () => {
   const { toast } = useToast();
@@ -38,19 +37,6 @@ export const PrescriptionManagement = () => {
   const [expDate, setexpDate] = useState('');
   const [timing, settiming] = useState('');
   const [stock, setstock] = useState('');
-    // useEffect(() => {
-    // const fetchUserDetails = async () => {
-    //     try {
-    //       const data = await viewRequest(username);  // Call the function
-    //       setUserDetails(data);
-    //     } catch (error: any) {
-    //       console.log(error);
-    //     }
-    //   };
-  
-    //   fetchUserDetails();  // Run the function on mount
-    // }, []);
-
   const openPdf = (fileurl:string) => {
       window.open(fileurl, "_blank"); // Opens PDF in a new tab
   }
@@ -71,8 +57,8 @@ export const PrescriptionManagement = () => {
       setLRfile(event.target.files[0]); // Save the file in state
     }
 };
-
-  const handlePrescUpload = async () => {
+const {mutate, status: uploadstatus} = uploadPresciption();
+  const handlPrescUpload =  () => {
     if (!Prescfile) {
       alert("Please select a file first.");
       return;
@@ -87,19 +73,19 @@ export const PrescriptionManagement = () => {
     formData.append("doctor_name", doctorName);
     formData.append("prescribed_date", visitDate);
 
-    //Sending via Axios
-    sendfileRequest(formData);
-    
-    toast({
-      title: `Prescription uploaded successfully`,
-      description: "Your document has been added to your records.",
+    mutate(formData, {
+      onSuccess: () => {
+        setDoctorName("");
+        setVisitDate("");
+        setPrescFile(null);
+        toast({
+          title: "Prescription Uploaded",
+          description: "Prescription uploaded successfully",
+          variant: "success"
+        })
+      }
     });
-    if (PrescfileInputRef.current) {
-      PrescfileInputRef.current.value = "";
-    }
-    setDoctorName('');
-    setVisitDate('');
-    setPrescFile(null);
+
   };
   const handleLRUpload = async () => {
     if (!LRfile) {
@@ -157,7 +143,8 @@ export const PrescriptionManagement = () => {
     setstock('');
   };
 
-  const prescriptions:Prescription[] = usePrescriptions();
+  const {data, status, error} = usePrescriptions(username);
+  console.log(data);
   const LabReports:LabReport[] = useLabReports();
   const Medications:Medication[] = useMedications();
   return (
@@ -178,20 +165,30 @@ export const PrescriptionManagement = () => {
               <div className="space-y-2">
                 <h3 className="font-medium">Recent Prescriptions</h3>
                 <div className="grid gap-2 max-h-60 overflow-y-auto p-2 border rounded-lg">
-                {prescriptions.map((prescription, index) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
-                    <div>
-                      <p className="font-medium">{`Dr. ${prescription.doctorName || "Unknown Doctor"}`}</p>
-                      <p className="text-sm text-gray-600">
-                        {prescription.prescribedDate ? `Visit Date: ${new Date(prescription.prescribedDate).toLocaleDateString()}` : "Visit Date: Not Available"}
-                      </p>
+                {status === "pending" ? (
+                  <div>loading</div>
+                ): status === "error" ? (
+                  <div>Error</div>
+                ): (
+                  // {prescriptions.map((prescription, index) => (
+
+                  
+                  // ))}
+                  data.map((prescription, index) => (
+                    <div key={index} className="p-3 bg-gray-50 rounded-lg flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">{`Dr. ${prescription.doctorName || "Unknown Doctor"}`}</p>
+                        <p className="text-sm text-gray-600">
+                          {prescription.prescribedDate ? `Visit Date: ${new Date(prescription.prescribedDate).toLocaleDateString()}` : "Visit Date: Not Available"}
+                        </p>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => openPdf(prescription.url)}>
+                        <FileText className="h-4 w-4 mr-2" />
+                        {getFileName(prescription.url)}
+                      </Button>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => openPdf(prescription.url)}>
-                      <FileText className="h-4 w-4 mr-2" />
-                      {getFileName(prescription.url)}
-                    </Button>
-                  </div>
-                ))}
+                  ))
+                ) }
                 </div>
               </div>
 
@@ -222,9 +219,21 @@ export const PrescriptionManagement = () => {
                     
                   <p className="text-xs text-muted-foreground">Supported formats: PDF, JPG, PNG</p>
                 </div>
-                <Button  className="w-full" disabled={!Prescfile || !doctorName || !visitDate} onClick={handlePrescUpload}>
-                  <Upload className="h-4 w-4 mr-2"/>
-                  Upload Prescription
+                <Button
+                  className="w-full"
+                  disabled={!Prescfile || !doctorName || !visitDate || uploadstatus === "pending"}
+                  onClick={handlPrescUpload}
+                >
+                  {uploadstatus === "pending" ? (
+                    <div className="flex items-center justify-center h-screen">
+                      <Loader2 className="animate-spin w-16 h-16 text-gray-500" />
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4 mr-2" />
+                      Upload Prescription
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
