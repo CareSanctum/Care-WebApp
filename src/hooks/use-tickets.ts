@@ -1,22 +1,33 @@
 // useTickets.ts
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { getticketRequest } from '@/requests/getticketRequest';
 import { setTickets } from '@/store/slices/ticketSlice';
-
+export type Ticket = {
+  id: string;
+  title: string;
+  status: string;
+  opened_at: string;
+  closed_at: string|null;
+}
 const useTickets = () => {
-  const tickets = useAppSelector((state) => state.tickets.tickets);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const {username} = useAppSelector((state) => state.auth);
-  const dispatch = useAppDispatch();
+  
 
   useEffect(() => {
     const getTickets = async () => {
-      const ticketsFromApi = await getticketRequest(username);
-      dispatch(setTickets(ticketsFromApi));
+      try{
+        const ticketsFromApi = await getticketRequest(username);
+        setTickets(ticketsFromApi);
+      }
+      catch(error){
+        console.log(error);
+      }
     };
 
     getTickets();
-  }, [dispatch]); // Runs only once when the component mounts
+  }, [username]); // Runs only once when the component mounts
   return { tickets };
 };
 

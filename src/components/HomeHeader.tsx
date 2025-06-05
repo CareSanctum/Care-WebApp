@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Link, Copy, Users, Trophy, Info } from 'lucide-react';
+import { Bell, Link, Copy, Users, Trophy, Info, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Logo } from './Logo';
 import { useToast } from "@/components/ui/use-toast";
@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "@/components/
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import useReferral from '@/hooks/Referrals/use-refcode';
+import { createTicketRequest } from '@/requests/createTicketRequest';
 
 
 export const HomeHeader = () => {
@@ -21,21 +22,6 @@ export const HomeHeader = () => {
 
   // Generate a unique referral code
   const referralLink = useReferral()?.link;
-
-  // Show acquisition toast messages on component mount
-  // useEffect(() => {
-  //   // Show referral achievement toast after a short delay
-  //   const timer = setTimeout(() => {
-  //     toast({
-  //       title: "🎉 Referral Achievement!",
-  //       description: "Pawan Agarwal referred 25 members and earned ₹3,500",
-  //       duration: 5000,
-  //     });
-  //   }, 3000);
-
-  //   return () => clearTimeout(timer);
-  // }, [toast]);
-
     const {username, accessToken} = useAppSelector((state) => state.auth);
     const [profile_url, setprofile_url] = useState("");
   
@@ -51,6 +37,30 @@ export const HomeHeader = () => {
         fetchprofilePicture();  // Run the function on mount
       }, [username]);
 
+  const [loading, setloading] = useState(false);
+    
+  const handleSOSPress = async () => {
+    try{
+      setloading(true);
+      await createTicketRequest(username, "APP_SOS", "SOS request from Web Application");
+      setloading(false);
+      toast({
+        title: "SOS request sent",
+        description: "Your request has been sent to the team. They will contact you shortly.",
+        duration: 5000,
+        variant: "success",
+      });
+    }
+    catch(error){
+      setloading(false);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        duration: 5000,
+        variant: "destructive",
+      });
+    }
+  }
   const handleEmergency = () => {
     toast({
       title: "Emergency assistance requested",
@@ -87,10 +97,17 @@ export const HomeHeader = () => {
           <Button 
             variant="destructive"
             className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
-            onClick={handleEmergency}
+            onClick={handleSOSPress}
+            disabled={loading}
           >
-            <Bell className="h-5 w-5 animate-pulse" />
-            SOS
+          {loading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <>
+              <Bell className="h-5 w-5 animate-pulse" />
+              SOS
+            </>
+          )}
           </Button>
           
           <Dialog>

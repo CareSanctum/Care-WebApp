@@ -7,12 +7,16 @@ import useTickets from '@/hooks/use-tickets';
 import { Button } from "@/components/ui/button";
 
 
-const changeDateFormat = (date: string): string => {
-  const eventDate = new Date(date);
-  const datePart = eventDate.toISOString().split('T')[0];
-  const timePart = eventDate.toISOString().split('T')[1].split(':').slice(0, 2).join(':');
-  return datePart + " " +  timePart;
-}
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const month = date.toLocaleString('default', { month: 'long' });
+  const year = date.getFullYear();
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+
+  return `${day} ${month} ${year} ${hours}:${minutes}`;
+};
 
 
 export const TicketHistory = () => {
@@ -23,7 +27,7 @@ export const TicketHistory = () => {
   // Filter tickets based on status
   const filteredTickets = tickets
     .filter(ticket => showActive ? ticket.status === 'OPEN' : ticket.status === 'CLOSED')
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    .sort((a, b) => new Date(b.opened_at).getTime() - new Date(a.opened_at).getTime());
 
   return (
     <Card className="shadow-md">
@@ -63,7 +67,7 @@ export const TicketHistory = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <p className="text-xs text-muted-foreground">
-                      {changeDateFormat(ticket.date)}
+                      {ticket.status === 'OPEN' ? `${formatDate(ticket.opened_at)}` : `${formatDate(ticket.opened_at)} – ${formatDate(ticket.closed_at)}`}
                     </p>
                   </div>
                   {/* <p className="text-xs text-muted-foreground">Category: {ticket.category}</p> */}

@@ -40,6 +40,7 @@ import { useWeeklyGoogleFitData } from '@/hooks/Google-Fit/use-WeeklyData';
 import BlurredPaymentsSection from '@/components/BlurredComponents/Blurred_PaymentsSection';
 import useHomeConfig from '@/hooks/use-HomeConfig';
 import { Feature } from '@/hooks/use-HomeConfig';
+import { createTicketRequest } from '@/requests/createTicketRequest';
 // Data source types
 type DataSource = 'doctor' | 'googlefit';
 // Time period types
@@ -122,13 +123,24 @@ const Home = () => {
   }, []);
 
   const handleContact = async () => {
-    setLoading(true);
-    const message = await contactCMRequest(username);
-    toast({
-      title: "Mail sent to Care Manager",
-      description: `${message}`,
-    });
-    setLoading(false);
+    try{
+      setLoading(true);
+      const message = await createTicketRequest(username, "CONTACT_CM", "Contact CareManager request from Web Application");
+      toast({
+        title: "Mail sent to Care Manager",
+        description: `Contact request sent to Care Manager. They will contact you shortly.`,
+        variant: "success",
+      });
+      setLoading(false);
+    }
+    catch(error){
+      setLoading(false);
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {

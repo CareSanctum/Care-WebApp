@@ -60,6 +60,28 @@ function formatIsoToReadableTime(isoString: string): string {
   });
 }
 
+const renderCustomizedDot = (
+  dotProps: any,
+  normalRange?: { min: number; max: number }
+) => {
+  const { cx, cy, value, stroke } = dotProps
+  if (normalRange) {
+    const { min, max } = normalRange
+    const isOutOfRange = value < min || value > max
+    return (
+      <circle
+        cx={cx}
+        cy={cy}
+        r={3}
+        fill={isOutOfRange ? 'red' : stroke}
+      />
+    )
+  }
+  // no normalRange defined → draw dot in the series color
+  return <circle cx={cx} cy={cy} r={3} fill={stroke} />
+}
+
+
 export const HealthMetricCard = ({ 
   Title, 
   Latestvalue, 
@@ -139,7 +161,9 @@ export const HealthMetricCard = ({
                       name={dataSet.name}
                       stroke={dataSet.color}
                       strokeWidth={2}
-                      dot={true}
+                      dot={(props) =>
+                        renderCustomizedDot(props, dataSet.normalRange)
+                      }
                     />
                   ))}
                 </LineChart>

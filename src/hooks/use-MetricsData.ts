@@ -11,11 +11,15 @@ export interface MetricType {
     tooltipUnit: string;
     tooltipNormalRange: string;
     Latestvalue: number | [number, number] | null;
-    ValueUnit: string ;
+    ValueUnit: string;
     lastChecked: string | null;
     trendData?: Array<{
         name: string;
         color: string;
+        normalRange?: {
+            min: number;
+            max: number;
+        };
         data: Array<{ date: string; value: number }>|Array<{time: string, value: number}>;
     }>
     }

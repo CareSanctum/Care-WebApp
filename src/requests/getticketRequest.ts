@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Ticket } from "@/store/slices/ticketSlice";
+import { Ticket } from "@/hooks/use-tickets";
 
 export const getticketRequest = async(username: string):Promise<Ticket[]> =>{
     try{
@@ -10,7 +10,8 @@ export const getticketRequest = async(username: string):Promise<Ticket[]> =>{
             id: ticket.id,
             title: ticket.type,
             status: ticket.status,
-            date: ticket.created_at, 
+            opened_at: ticket.created_at, 
+            closed_at: ticket.closed_at,
           }));
       
           return transformedTickets;
